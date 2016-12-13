@@ -1,5 +1,5 @@
 ## Frontend
----
+
 Korisnik na raspolaganju ima tri opcije:
 
 * ***posmatranje turnira*** <br>
@@ -30,7 +30,7 @@ Korisnik na raspolaganju ima tri opcije:
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tom akcijom se server obaveštava o završetku meča i pobednik čeka novi meč. <br>
 
 ## Bekend
----
+
 Baza podataka čuva podatke o trenutno registrovanim klubovima, igračima, aktivnim i odigranim turnirima (detalji implementacije će biti odlučeni u hodu). <br>
 Bekend omogućuje generisanje i iscrtavanje šeme koju prikazuje korisnicima. <br>
 Bekend obaveštava korisnike koji meč se igra na kom stolu. <br>
@@ -39,7 +39,7 @@ Bekend čuva redosled mečeva koji su na listi čekanja. <br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nakon određivanja meča sledećeg kola (par protivnika), pomenuti meč se postavlja na kraj liste čekanja. <br>
 
 ## Kontakt informacije
----
+
 Repozitorijum: <br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; https://github.com/PVeb-Billiard-Tournament-Monitor/tournament-monitor <br>
 
