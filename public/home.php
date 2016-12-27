@@ -52,7 +52,7 @@
 	  <a href="host.php"><button type="button" class="btn btn-primary btn-lg" style="width:100%; height:150px;" >Host a tournament</button></a>
     </div>
     <div class="col-sm-4"> 
-	  <button type="button" class="btn btn-primary btn-lg" style="width:100%; height:150px;" >Table registration</button>
+	  <a href="table.php"><button type="button" class="btn btn-primary btn-lg" style="width:100%; height:150px;" >Table registration</button></a>
     </div>
   </div>
 </div>
