@@ -1,5 +1,5 @@
 
-<?php 
+<?php
     $pageTitle = "Billiard Tournament Monitor";
     $bodyCSS = "../css/table_reg_body.css";
     include_once "../html/header.php";
@@ -37,3 +37,4 @@
 </div>
 <br>
 
+<?php include_once "../html/footer.php" ?>
