@@ -2,6 +2,7 @@
 
 	echo
     '
+        <br>
         <style type="text/css">
 
             .glyphicon-refresh-animate
@@ -46,6 +47,7 @@
                 </div>
             </form>
         </div>
+        <br>
 	';
 
 ?>
