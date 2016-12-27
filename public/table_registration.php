@@ -2,7 +2,6 @@
 
 	echo
 	'
-		<br>
 		<style type="text/css">
 
 			.glyphicon-refresh-animate
@@ -31,15 +30,15 @@
 
 		<div class="container" style="margin: auto; width: 350px;">
 			<form class="form-signin">
-				<h2 class="form-signin-heading text-muted" style="text-align: center;">Host a tournament</h2>
+				<h2 class="form-signin-heading text-muted" style="text-align: center;">Table Registration</h2>
 				<br>
-				<input type="text" class="form-control" placeholder="Enter username..." required="" autofocus="">
+				<input type="text" class="form-control" placeholder="Enter tournament key..." required="" autofocus="">
 				<br>
-				<input type="password" class="form-control" placeholder="Enter password..." required="">
+				<input type="password" class="form-control" placeholder="Enter table key..." required="">
 				<br>
 				<button class="btn btn-md btn-success btn-block" type="submit" style="margin: auto; width: 200px;">
 					<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-					&nbsp; Logging...
+					&nbsp; Waiting for other tables
 				</button>
 				<br>
 				<div class="alert alert-danger">
@@ -47,7 +46,6 @@
 				</div>
 			</form>
 		</div>
-		<br>
 	';
 
 ?>
