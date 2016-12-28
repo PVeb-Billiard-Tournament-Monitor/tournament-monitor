@@ -13,7 +13,6 @@
 	<script src="../js/jquery.bootstrap-duallistbox.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="../css/header.css">
-	<link rel="stylesheet" type="text/css" href="../css/footer.css">
 	<link rel="stylesheet" type="text/css" href="<?php echo $bodyCSS; ?>">
 	<link rel="stylesheet" type="text/css" href="../css/bootstrap-duallistbox.css">
 </head>
@@ -33,7 +32,6 @@
 			<div class="collapse navbar-collapse" id="myNavbar">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="home.php">Home</a></li>
-					<li><a href="#">About</a></li>
 				</ul>
 			</div>
 		</div>
