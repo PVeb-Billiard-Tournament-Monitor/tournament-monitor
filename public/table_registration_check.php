@@ -64,7 +64,7 @@
 
 		$_SESSION['registered_tables'][count($_SESSION['registered_tables'])] = $current_table_number;
 
-		echo "Successful registration!";
+		echo "success";
 	}
 	else
 	{

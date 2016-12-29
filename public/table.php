@@ -8,16 +8,23 @@
 <br>
 <script type="text/javascript">
     function error_handler(msg) {
-        $("#error_box").addClass("alert alert-danger").html(msg.responseText);
+        $("#error_box").addClass("alert alert-danger").html(msg instanceof XMLHttpRequest ? msg.responseText : msg);
+    }
+    function set_waiting() {
+        $("input[name='tournament_key']").prop("disabled", true);
+        $("input[name='table_number']").prop("disabled", true);
+        $("#refresh").addClass("glyphicon glyphicon-refresh glyphicon-refresh-animate");
+        $("#registration_button_text").text("Waiting...");
+        $("#registration_button").prop("disabled", true);
     }
     $(document).ready(function () {
         $("#registration_button").click(function () {
-            if (!$("input[name='tournament_key']").val() || !$("input[name='table_number']").val()) {
-                alert("bla");
+            var t_key =$("input[name='tournament_key']");
+            var t_number = $("input[name='table_number']");
+
+            if (!t_key.val() || !t_number.val()) {
                 return;
             }
-            $("#refresh").addClass("glyphicon glyphicon-refresh glyphicon-refresh-animate");
-            $("#registration_button_text").text("Waiting...");
 
             $.ajax({
                 url: "table_registration_check.php",
@@ -27,7 +34,11 @@
                     table_number: $("input[name='table_number']").val()
                 },
                 success: function (response) {
-                    $("div.container").html(response);
+                    if (response == "success") {
+                        set_waiting();
+                    } else {
+                        error_handler(response);
+                    }
                 },
                 error: error_handler
             });
