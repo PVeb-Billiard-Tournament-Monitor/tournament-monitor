@@ -19,7 +19,7 @@
 	}
 	$(document).ready(function () {
 		$("#registration_button").click(function () {
-			var t_key =$("input[name='tournament_key']");
+			var t_key = $("input[name='tournament_key']");
 			var t_number = $("input[name='table_number']");
 
 			if (!t_key.val() || !t_number.val()) {
@@ -29,8 +29,8 @@
 			var string_data =
 				{
 					"message":"register_me",
-					"tournament_key":$("input[name='tournament_key']").val(),
-					"table_number":$("input[name='table_number']").val()
+					"tournament_key": t_key.val(),
+					"table_number": t_number.val()
 				}
 			var json_data = JSON.stringify(string_data);
 
