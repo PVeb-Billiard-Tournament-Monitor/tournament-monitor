@@ -12,6 +12,9 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="../js/jquery.bootstrap-duallistbox.js"></script>
 	<script src="../js/jquery.bracket.min.js"></script>
+	<!-- dropdown menu bootstrap -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="../css/header.css">
@@ -32,10 +35,17 @@
 				<a class="navbar-brand" href="home.php">Logo</a>
 			</div>
 
-			<div class="collapse navbar-collapse" id="myNavbar">
+			<div style="position: relative;" class="collapse navbar-collapse" id="myNavbar">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="home.php">Home</a></li>
+
+					<?php
+						if (isset($_SESSION["username"]))
+							echo "<li style='position: absolute; right: 0px;'><a href='logout_host.php'>Logout</a></li>";
+					?>
+
 					<li><a href="backend_script.php?restart">Delete currently logged tables in db [testing]</a></li>
+
 				</ul>
 			</div>
 		</div>

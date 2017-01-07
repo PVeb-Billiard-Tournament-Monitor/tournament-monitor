@@ -10,14 +10,15 @@
     }
 
 	if (isset($_GET["username"]) && isset($_GET["password"])) {
-		$query = $db->prepare("SELECT username, password FROM billiard_club WHERE username = ? AND password = ?");
+		$query = $db->prepare("SELECT username, password, id FROM billiard_club WHERE username = ? AND password = ?");
         $query->bindParam(1, $_GET["username"]);
         $query->bindParam(2, $_GET["password"]);
         $query->execute();
 
-        if (!$query->fetch(PDO::FETCH_ASSOC)) {
+        if (!($row = $query->fetch(PDO::FETCH_ASSOC))) {
             echo "wrong username of password!";
         } else {
+            $_SESSION["host_id"] = intval($row["id"]);
             $_SESSION["username"] = $_GET["username"];
             echo "success";
         }
