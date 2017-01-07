@@ -1,4 +1,14 @@
 <?php
+    //testing
+    if (isset($_GET['restart'])) {
+        require_once '../db/connecting.php';
+        $query = $db->prepare("DELETE FROM currently_registered_tables");
+        $query->execute();
+
+        header("Location: /tournament-monitor/public/table.php");
+        return;
+    }
+    // end testing
 
 	$json_data = json_decode($_POST['table_data']);
 
@@ -71,11 +81,24 @@
 			break;
 		}
 		// --------------------------------------------------------------------
+		//	Match ready check
+		// --------------------------------------------------------------------
+        case 'is_match_ready':
+        {
+            $ret = new stdClass();
+            $ret->message = "yes";
+            echo json_encode($ret);
+            return;
+            //break;
+        }
+		// --------------------------------------------------------------------
 		//	Tournament ready check
 		// --------------------------------------------------------------------
 		case 'is_tournament_ready':
 		{
-			break;
+            echo "yes";
+            return;
+			//break;
 		}
 		// --------------------------------------------------------------------
 		//	Result changed

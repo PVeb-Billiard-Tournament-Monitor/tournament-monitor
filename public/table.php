@@ -6,68 +6,16 @@
 ?>
 
 <br>
-<script type="text/javascript">
-	function error_handler(msg) {
-		$("#error_box").addClass("alert alert-danger").html(msg instanceof XMLHttpRequest ? msg.responseText : msg);
-	}
-	function set_waiting() {
-		$("input[name='tournament_key']").prop("disabled", true);
-		$("input[name='table_number']").prop("disabled", true);
-		$("#refresh").addClass("glyphicon glyphicon-refresh glyphicon-refresh-animate");
-		$("#registration_button_text").text("Waiting...");
-		$("#registration_button").prop("disabled", true);
-	}
-	$(document).ready(function () {
-		$("#registration_button").click(function () {
-			var t_key =$("input[name='tournament_key']");
-			var t_number = $("input[name='table_number']");
+<script type="text/javascript" src="/tournament-monitor/js/table.js"></script>
 
-			if (!t_key.val() || !t_number.val()) {
-				return;
-			}
-
-			var string_data =
-				{
-					"message":"register_me",
-					"tournament_key":$("input[name='tournament_key']").val(),
-					"table_number":$("input[name='table_number']").val()
-				}
-			var json_data = JSON.stringify(string_data);
-
-			$.ajax({
-				url: "backend_script.php",
-				method: "POST",
-				data: { "table_data": json_data },
-				success: function (response) {
-					if (response == "success") {
-						set_waiting();
-					} else {
-						error_handler(response);
-					}
-				},
-				error: error_handler
-			});
-		});
-	});
-
+<script>
+    $(document).ready(function() {
+        table.init();
+        $("div.container").on("click", "#registration_button", function() {table.update();});
+    });
 </script>
 
 <div class="container" style="margin: auto; width: 350px;">
-	<form class="form-signin">
-		<h2 class="form-signin-heading text-muted" style="text-align: center;">Table Registration</h2>
-		<br>
-		<input name="tournament_key" type="text" class="form-control" placeholder="Enter tournament key..." required="" autofocus="">
-		<br>
-		<input name="table_number" type="text" class="form-control" placeholder="Enter table key..." required="">
-		<br>
-		<button id="registration_button" class="btn btn-md btn-success btn-block" type="button" style="margin: auto; width: 200px;">
-			<span id="refresh"></span>
-			<span id="registration_button_text">&nbsp; Register</span>
-		</button>
-		<br>
-		<div id="error_box">
-		</div>
-	</form>
 </div>
 <br>
 
