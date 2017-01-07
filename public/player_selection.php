@@ -7,10 +7,35 @@
 
 <div style="width: 90%; margin: auto;">
 	<form>
+		<span> Set tournament key: </span>
+		<br>
+		<input type="text" class="form-control" placeholder="Enter tournament key..." required="" autofocus="" style="width: 220px;">
+		<br>
+		<span> Choose tournament type: </span>
+		<br>
+		<select class="selectpicker">
+  		<?php
+		 	require_once '../db/connecting.php';
+
+			$result = $db->query("SELECT * FROM tournament");
+
+			while ($row = $result->fetch(PDO::FETCH_ASSOC))
+			{
+				$type = $row['type'];
+				echo "<option value=" . $type . ">" . $type . "</option>".PHP_EOL;
+			}
+
+		?>
+		</select>
+		<br><br>
+		<span> Set entry fee: </span>
+		<br>
+		<input type="text" class="form-control" placeholder="Set entry fee" autofocus="" style="width: 220px;">
+		<br>
+		<span> Choose players: </span>
+		<br>
 		<select multiple="multiple" size="10" name="duallistbox_demo1[]">
 		<?php
-			require_once '../db/connecting.php';
-
 			$result = $db->query("SELECT * FROM player");
 
 			while ($row = $result->fetch(PDO::FETCH_ASSOC))
@@ -23,6 +48,10 @@
 			}
 		?>
 		</select>
+		<br><br>
+		<button id="start_tournament" class="btn btn-md btn-success btn-block" type="button" style="margin: auto; width: 200px;">
+			<span id="login_button_text"> Start tournament </span>
+		</button>
 	</form>
 </div>
 

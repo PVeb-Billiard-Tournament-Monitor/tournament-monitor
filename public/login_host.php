@@ -15,9 +15,10 @@
         $query->bindParam(2, $_GET["password"]);
         $query->execute();
 
-        if (!$query->fetch(PDO::FETCH_ASSOC)) {
+        if (!($row = $query->fetch(PDO::FETCH_ASSOC))) {
             echo "wrong username of password!";
         } else {
+            $_SESSION["host_id"] = intval($row["id"]);
             $_SESSION["username"] = $_GET["username"];
             echo "success";
         }
