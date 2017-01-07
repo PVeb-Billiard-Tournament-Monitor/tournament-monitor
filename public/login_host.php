@@ -10,7 +10,7 @@
     }
 
 	if (isset($_GET["username"]) && isset($_GET["password"])) {
-		$query = $db->prepare("SELECT username, password FROM billiard_club WHERE username = ? AND password = ?");
+		$query = $db->prepare("SELECT username, password, id FROM billiard_club WHERE username = ? AND password = ?");
         $query->bindParam(1, $_GET["username"]);
         $query->bindParam(2, $_GET["password"]);
         $query->execute();
