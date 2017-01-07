@@ -1,24 +1,10 @@
 <?php
 	$pageTitle = "Host a tournament";
+    $bodyCSS = "../css/animate_glyph.css";
 	include_once "../html/header.php";
 ?>
 
 <br>
-<style type="text/css">
-
-	.glyphicon-refresh-animate
-	{
-		-animation: spin .7s infinite linear;
-		-webkit-animation: spin2 .7s infinite linear;
-	}
-
-	@-webkit-keyframes spin2
-	{
-		from { -webkit-transform: rotate(0deg);}
-		to { -webkit-transform: rotate(360deg);}
-	}
-</style>
-
 <script type="text/javascript">
 	function login_user() {
 		$("#refresh").addClass("glyphicon glyphicon-refresh glyphicon-refresh-animate");
