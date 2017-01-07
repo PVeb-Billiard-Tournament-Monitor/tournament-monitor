@@ -32,9 +32,13 @@
 				<a class="navbar-brand" href="home.php">Logo</a>
 			</div>
 
-			<div class="collapse navbar-collapse" id="myNavbar">
+			<div style="position: relative;" class="collapse navbar-collapse" id="myNavbar">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="home.php">Home</a></li>
+					<?php
+						if (isset($_SESSION["username"]))
+							echo "<li style='position: absolute; right: 0px;'><a href='logout_host.php'>Logout</a></li>";
+					?>
 				</ul>
 			</div>
 		</div>
