@@ -1,5 +1,6 @@
 var table = {
     currState: undefined,
+    matchData: undefined,
     states: {
         notRegistered: {
             error_handler: function(msg) {
@@ -48,6 +49,7 @@ var table = {
                     data: { "table_data": json_data },
                     success: function (response) {
                         if (response == "success") {
+                            ref.table.t_number =  t_number;
                             ref.table.changeState(table.states.waitingTournament);
                         } else {
                             ref.error_handler(response);
@@ -64,43 +66,32 @@ var table = {
                 this.table = table;
             },
             enter: function() {
-                $("div.container").html('<h2 class="text-muted" style="text-align: center;"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span><br>Waiting for match!</h2>');
+                $("div.container").html('\
+                <h2 class="text-muted" style="text-align: center;">\
+                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>\
+                <br>Waiting for match!</h2>');
             },
             exit: function() {
                 $("div.container").html('');
             },
             update: function() {
-                // TODO: implement request for a match
-            }
-        },
-        waitingTournament: {
-            init: function(table) {
-                this.table = table;
-            },
-            enter: function() {
-                $("div.container").html('<h2 class="text-muted" style="text-align: center;"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span><br>Waiting for tournament!</h2>');
-            },
-            exit: function() {
-                $("div.container").html('');
-            },
-            update: function() {
+                var string_data =
+                {
+                    "message":"is_match_ready",
+                    "table_number": ref.table.t_number
+                }
+                var json_data = JSON.stringify(string_data);
                 var int_id = setInterval(function() {
-
-                    var string_data =
-                    {
-                        "message":"is_tournament_ready"
-                    } 
-                    var json_data = JSON.stringify(string_data);
-
                     ref = this;
                     $.ajax({
                         url: "/tournament-monitor/public/backend_script.php",
                         data: { "table_data": json_data },
                         method: "POST",
+                        dataType: "json",
                         success: function(response) {
-                            if (response === 'yes') {
+                            if (response.message === 'yes') {
                                 clearInterval(int_id);
-                                ref.table.changeState(table.states.waitingMatch);  
+                                ref.table.changeState(table.states.match);
                             }
                         },
                         error: function(response) {
@@ -110,21 +101,61 @@ var table = {
                     });
                 }, 2000);
             }
-        }, 
-        match: {
+        },
+        waitingTournament: {
             init: function(table) {
                 this.table = table;
             },
             enter: function() {
-                // TODO: generate the interface for players without actual data
+                $("div.container").html('\
+                <h2 class="text-muted" style="text-align: center;">\
+                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>\
+                <br>Waiting for tournament!</h2>');
             },
             exit: function() {
                 $("div.container").html('');
             },
             update: function() {
-                // TODO: request data from server and send him current results
+                var string_data =
+                {
+                    "message":"is_tournament_ready",
+                    "table_number": ref.table.t_number
+                }
+                var json_data = JSON.stringify(string_data);
+                var int_id = setInterval(function() {
+                    ref = this;
+                    $.ajax({
+                        url: "/tournament-monitor/public/backend_script.php",
+                        data: { "table_data": json_data },
+                        method: "POST",
+                        success: function(response) {
+                            if (response === 'yes') {
+                                clearInterval(int_id);
+                                ref.table.changeState(table.states.waitingMatch);
+                            }
+                        },
+                        error: function(response) {
+                            clearInterval(int_id);
+                            $("div.container").html(response.responseText);
+                        }
+                    });
+                }, 2000);
             }
-        }, 
+        },
+        match: {
+            init: function(table) {
+                this.table = table;
+            },
+            enter: function() {
+                $("div.container").html('<h2 class"text-muted"> To be generated :) </h2>');
+            },
+            exit: function() {
+                $("div.container").html('');
+            },
+            update: function() {
+                // TODO: implement the requests and ui for match score update
+            }
+        },
     },
     init: function() {
         this.states.notRegistered.init(this);
@@ -147,4 +178,3 @@ var table = {
         this.currState.update();
     }
 }
-

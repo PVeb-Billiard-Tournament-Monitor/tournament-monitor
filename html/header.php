@@ -35,7 +35,7 @@
 			<div class="collapse navbar-collapse" id="myNavbar">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="home.php">Home</a></li>
-					<li><a href="backend_script.php?restart">Restart</a></li>
+					<li><a href="backend_script.php?restart">Delete currently logged tables in db [testing]</a></li>
 				</ul>
 			</div>
 		</div>
