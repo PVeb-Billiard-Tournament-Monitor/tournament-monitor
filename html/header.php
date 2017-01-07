@@ -35,14 +35,14 @@
 			<div style="position: relative;" class="collapse navbar-collapse" id="myNavbar">
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="home.php">Home</a></li>
-<<<<<<< HEAD
+
 					<?php
 						if (isset($_SESSION["username"]))
 							echo "<li style='position: absolute; right: 0px;'><a href='logout_host.php'>Logout</a></li>";
 					?>
-=======
+
 					<li><a href="backend_script.php?restart">Delete currently logged tables in db [testing]</a></li>
->>>>>>> 35386e8f3c68aa31f85d7dbdcd42ba0431ad84cc
+
 				</ul>
 			</div>
 		</div>

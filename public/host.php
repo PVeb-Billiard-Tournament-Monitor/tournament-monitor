@@ -1,5 +1,6 @@
 <?php
 	$pageTitle = "Host a tournament";
+	$bodyCSS = "../css/animate_glyph.css";
 	include_once "../html/header.php";
 ?>
 
