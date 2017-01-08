@@ -5,6 +5,10 @@
 		$query = $db->prepare("DELETE FROM currently_registered_tables");
 		$query->execute();
 
+		$query = $db->prepare("DELETE FROM `match`");
+		$query->execute();
+
+
 		header("Location: /tournament-monitor/public/table.php");
 		return;
 	}
@@ -123,6 +127,86 @@
 		// --------------------------------------------------------------------
 		case 'is_match_ready':
 		{
+			$received_tournament_key = $json_data->tournament_key;
+			$received_table_number = intval($json_data->table_number);
+
+			require_once '../db/connecting.php';
+
+			// get required data from HOSTING_TOURNAMENT
+			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
+			$query->bindParam(':rtk', $received_tournament_key);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			$billiard_club_id = $row['billiard_club_id'];
+			$tournament_type = $row['tournament_type'];
+			$date = $row['date'];
+
+			// get already assigned number of players from MATCH to calculate next pair for a first round
+			$query = $db->prepare("SELECT COUNT(*) AS number_of_already_assigned_players FROM `match` WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = true");
+			$query->bindParam(':td', $date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			$next_pair = 2 * intval($row['number_of_already_assigned_players']);
+
+			// check is there a pair for a round
+			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt ORDER BY next_round ASC");
+			$query->bindParam(':td', $date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
+			$players = array();
+			while ($row = $query->fetch(PDO::FETCH_ASSOC))
+			{
+				array_push($players, $row['player_id']);
+			}
+
+			// there is a pair for a round
+			if (count($players) > 2)
+			{
+				$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, table_id, tournament_date, billiard_club_id, tournament_type) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :ti, :td, :bci, :tt)");
+				$query->bindParam(':pi1', $players[0]);
+				$query->bindParam(':pi2', $players[1]);
+				$query->bindValue(':r', 1);
+				$query->bindValue(':s1', 0);
+				$query->bindValue(':s2', 0);
+				$query->bindValue(':a', true);
+				$query->bindParam(':ti', $received_table_number);
+				$query->bindParam(':td', $date);
+				$query->bindParam(':bci', $billiard_club_id);
+				$query->bindParam(':tt', $tournament_type);
+				$query->execute();
+
+				// player class
+				$response = new stdClass();
+				$response->message = "yes";
+				$response->player1 = new stdClass();
+				$response->player2 = new stdClass();
+
+				// get the first player
+				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
+				$query->bindParam(':i', $players[$next_pair]);
+				$query->execute();
+				$row = $query->fetch(PDO::FETCH_ASSOC);
+				$response->player1->id = $players[$next_pair];
+				$response->player1->name = $row['name'];
+				$response->player1->last_name = $row['last_name'];
+				$response->player1->image_link = $row['img_link'];
+
+				// get the second player
+				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
+				$query->bindParam(':i', $players[$next_pair + 1]);
+				$query->execute();
+				$row = $query->fetch(PDO::FETCH_ASSOC);
+				$response->player2->id = $players[$next_pair + 1];
+				$response->player2->name = $row['name'];
+				$response->player2->last_name = $row['last_name'];
+				$response->player2->image_link = $row['img_link'];
+
+				echo json_encode($response);
+			}
+
 			break;
 		}
 		// --------------------------------------------------------------------
@@ -137,6 +221,8 @@
 		// --------------------------------------------------------------------
 		case 'match_finished':
 		{
+			// Delete a looser from the PLAYING_TOURNAMENT table and update next_round to the next_round+1 for a winner
+
 			break;
 		}
 		default:
