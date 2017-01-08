@@ -50,6 +50,7 @@ var table = {
                     success: function (response) {
                         if (response == "success") {
                             ref.table.t_number =  t_number;
+                            ref.table.t_key =  t_key;
                             ref.table.changeState(table.states.waitingTournament);
                         } else {
                             ref.error_handler(response);
@@ -75,14 +76,15 @@ var table = {
                 $("div.container").html('');
             },
             update: function() {
+                ref = this;
                 var string_data =
                 {
                     "message":"is_match_ready",
-                    "table_number": ref.table.t_number
+                    "table_number": ref.table.t_number,
+                    "tournament_key": ref.table.t_key
                 }
                 var json_data = JSON.stringify(string_data);
                 var int_id = setInterval(function() {
-                    ref = this;
                     $.ajax({
                         url: "/tournament-monitor/public/backend_script.php",
                         data: { "table_data": json_data },
@@ -99,7 +101,7 @@ var table = {
                             $("div.container").html(response.responseText);
                         }
                     });
-                }, 2000);
+                }, 2000);number
             }
         },
         waitingTournament: {
@@ -116,14 +118,15 @@ var table = {
                 $("div.container").html('');
             },
             update: function() {
+                ref = this;
                 var string_data =
                 {
                     "message":"is_tournament_ready",
-                    "table_number": ref.table.t_number
+                    "table_number": ref.table.t_number,
+                    "tournament_key": ref.table.t_key
                 }
                 var json_data = JSON.stringify(string_data);
                 var int_id = setInterval(function() {
-                    ref = this;
                     $.ajax({
                         url: "/tournament-monitor/public/backend_script.php",
                         data: { "table_data": json_data },
