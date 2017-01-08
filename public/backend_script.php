@@ -1,17 +1,18 @@
 <?php
-    //testing
-    if (isset($_GET['restart'])) {
-        require_once '../db/connecting.php';
-        $query = $db->prepare("DELETE FROM currently_registered_tables");
-        $query->execute();
+	//testing
+	if (isset($_GET['restart'])) {
+		require_once '../db/connecting.php';
+		$query = $db->prepare("DELETE FROM currently_registered_tables");
+		$query->execute();
 
-        header("Location: /tournament-monitor/public/table.php");
-        return;
-    }
-    // end testing
+		header("Location: /tournament-monitor/public/table.php");
+		return;
+	}
+	// end testing
+
+
 
 	$json_data = json_decode($_POST['table_data']);
-
 	$table_message = $json_data->message;
 
 	switch ($table_message)
@@ -81,24 +82,48 @@
 			break;
 		}
 		// --------------------------------------------------------------------
-		//	Match ready check
-		// --------------------------------------------------------------------
-        case 'is_match_ready':
-        {
-            $ret = new stdClass();
-            $ret->message = "yes";
-            echo json_encode($ret);
-            return;
-            //break;
-        }
-		// --------------------------------------------------------------------
 		//	Tournament ready check
 		// --------------------------------------------------------------------
 		case 'is_tournament_ready':
 		{
-            echo "yes";
-            return;
-			//break;
+			$received_tournament_key = $json_data->tournament_key;
+
+			require_once '../db/connecting.php';
+
+			// get total number of tables
+			$query = $db->prepare("SELECT bc.num_of_tables FROM billiard_club bc JOIN hosting_tournament ht ON bc.id = ht.billiard_club_id WHERE ht.tournament_key = :rtk AND ht.active = true");
+			$query->bindParam(':rtk', $received_tournament_key);
+			$query->execute();
+
+			$total_number_of_tables = 0;
+			while ($row = $query->fetch(PDO::FETCH_ASSOC))
+			{
+				$total_number_of_tables = $row['num_of_tables'];
+			}
+
+			// get total number of currently registered tables
+			$query = $db->prepare("SELECT COUNT(table_number) AS number_of_currently_registered_tables FROM currently_registered_tables WHERE tournament_key = :tk");
+			$query->bindParam(':tk', $received_tournament_key);
+			$query->execute();
+
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			if ($row['number_of_currently_registered_tables'] == $total_number_of_tables)
+			{
+				echo "yes";
+			}
+			else
+			{
+				echo "no";
+			}
+
+			break;
+		}
+		// --------------------------------------------------------------------
+		//	Match ready check
+		// --------------------------------------------------------------------
+		case 'is_match_ready':
+		{
+			break;
 		}
 		// --------------------------------------------------------------------
 		//	Result changed
