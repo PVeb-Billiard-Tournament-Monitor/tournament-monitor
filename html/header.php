@@ -18,9 +18,14 @@
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="../css/header.css">
-	<link rel="stylesheet" type="text/css" href="<?php echo $bodyCSS; ?>">
+	<link rel="stylesheet" type="text/css" href="/tournament-monitor/css/scoreboard.css">
 	<link rel="stylesheet" type="text/css" href="../css/bootstrap-duallistbox.css">
 	<link rel="stylesheet" type="text/css" href="../css/jquery.bracket.min.css">
+
+    <?php
+        foreach ($bodyCSS as $css)
+            echo "<link rel='stylesheet' type='text/css' href='$css'>"
+    ?>
 </head>
 
 <body>

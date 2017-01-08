@@ -1,7 +1,7 @@
 
 <?php
 	$pageTitle = "Billiard Tournament Monitor";
-	$bodyCSS = "../css/animate_glyph.css";
+	$bodyCSS = ["/tournament-monitor/css/animate_glyph.css", "/tournament-monitor/css/scoreboard.css"];
 	include_once "../html/header.php";
 ?>
 

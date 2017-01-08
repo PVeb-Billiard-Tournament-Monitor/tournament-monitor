@@ -1,6 +1,6 @@
 <?php
 	$pageTitle = "Billiard Tournament Monitor";
-	$bodyCSS = "../css/home_body.css";
+	$bodyCSS = ["/tournament-monitor/css/home_body.css"];
 	include_once "../html/header.php";
 ?>
 

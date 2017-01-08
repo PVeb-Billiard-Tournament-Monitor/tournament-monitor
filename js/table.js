@@ -101,7 +101,7 @@ var table = {
                             $("div.container").html(response.responseText);
                         }
                     });
-                }, 2000);number
+                }, 2000);
             }
         },
         waitingTournament: {
@@ -150,7 +150,16 @@ var table = {
                 this.table = table;
             },
             enter: function() {
-                $("div.container").html('<h2 class"text-muted"> To be generated :) </h2>');
+                $.ajax({
+                    url: "/tournament-monitor/html/scoreboard.html",
+                    dataType: "html",
+                    success: function(response) {
+                        $("div.container").html(response);
+                    },
+                    error: function(response) {
+                        $("div.container").html(response.responseText);
+                    }
+                });
             },
             exit: function() {
                 $("div.container").html('');
