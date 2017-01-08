@@ -1,0 +1,25 @@
+#scoreboard {
+    padding: 10px;
+}
+table {
+    height: 60%;
+    width: 100%;
+}
+table td, th {
+    text-align: center;
+    padding: 10px;
+}
+
+.bottom-border {
+    border-bottom: 2px solid black;
+}
+
+h1 {
+    font-size: 15em;
+}
+
+.player1-colors {
+}
+
+.player2-colors {
+}
