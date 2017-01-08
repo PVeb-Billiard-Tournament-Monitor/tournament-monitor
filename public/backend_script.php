@@ -8,6 +8,21 @@
 		$query = $db->prepare("DELETE FROM `match`");
 		$query->execute();
 
+		$query = $db->prepare("DELETE FROM playing_tournament");
+		$query->execute();
+
+		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (1, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
+		$query->execute();
+
+		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (2, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
+		$query->execute();
+
+
+		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (3, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
+		$query->execute();
+
+		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (4, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
+		$query->execute();
 
 		header("Location: /tournament-monitor/public/table.php");
 		return;
@@ -132,7 +147,7 @@
 
 			require_once '../db/connecting.php';
 
-			// get required data from HOSTING_TOURNAMENT
+			// get required data from the HOSTING_TOURNAMENT
 			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
 			$query->bindParam(':rtk', $received_tournament_key);
 			$query->execute();
@@ -141,17 +156,8 @@
 			$tournament_type = $row['tournament_type'];
 			$date = $row['date'];
 
-			// get already assigned number of players from MATCH to calculate next pair for a first round
-			$query = $db->prepare("SELECT COUNT(*) AS number_of_already_assigned_players FROM `match` WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = true");
-			$query->bindParam(':td', $date);
-			$query->bindParam(':bci', $billiard_club_id);
-			$query->bindParam(':tt', $tournament_type);
-			$query->execute();
-			$row = $query->fetch(PDO::FETCH_ASSOC);
-			$next_pair = 2 * intval($row['number_of_already_assigned_players']);
-
 			// check is there a pair for a round
-			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt ORDER BY next_round ASC");
+			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC");
 			$query->bindParam(':td', $date);
 			$query->bindParam(':bci', $billiard_club_id);
 			$query->bindParam(':tt', $tournament_type);
@@ -163,7 +169,7 @@
 			}
 
 			// there is a pair for a round
-			if (count($players) > 2)
+			if (count($players) > 1)
 			{
 				$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, table_id, tournament_date, billiard_club_id, tournament_type) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :ti, :td, :bci, :tt)");
 				$query->bindParam(':pi1', $players[0]);
@@ -186,25 +192,32 @@
 
 				// get the first player
 				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
-				$query->bindParam(':i', $players[$next_pair]);
+				$query->bindParam(':i', $players[0]);
 				$query->execute();
 				$row = $query->fetch(PDO::FETCH_ASSOC);
-				$response->player1->id = $players[$next_pair];
+				$response->player1->id = $players[0];
 				$response->player1->name = $row['name'];
 				$response->player1->last_name = $row['last_name'];
 				$response->player1->image_link = $row['img_link'];
 
 				// get the second player
 				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
-				$query->bindParam(':i', $players[$next_pair + 1]);
+				$query->bindParam(':i', $players[1]);
 				$query->execute();
 				$row = $query->fetch(PDO::FETCH_ASSOC);
-				$response->player2->id = $players[$next_pair + 1];
+				$response->player2->id = $players[1];
 				$response->player2->name = $row['name'];
 				$response->player2->last_name = $row['last_name'];
 				$response->player2->image_link = $row['img_link'];
 
 				echo json_encode($response);
+
+				$query = $db->prepare("UPDATE playing_tournament SET active = true WHERE player_id = :p1");
+				$query->bindParam(':p1', $players[0]);
+				$query->execute();
+				$query = $db->prepare("UPDATE playing_tournament SET active = true WHERE player_id = :p2");
+				$query->bindParam(':p2', $players[1]);
+				$query->execute();
 			}
 
 			break;
