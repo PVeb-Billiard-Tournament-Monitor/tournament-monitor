@@ -199,6 +199,7 @@
 				$response->player1->name = $row['name'];
 				$response->player1->last_name = $row['last_name'];
 				$response->player1->image_link = $row['img_link'];
+				$response->player1->score = 0;
 
 				// get the second player
 				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
@@ -209,6 +210,7 @@
 				$response->player2->name = $row['name'];
 				$response->player2->last_name = $row['last_name'];
 				$response->player2->image_link = $row['img_link'];
+				$response->player2->score = 0;
 
 				echo json_encode($response);
 
@@ -223,10 +225,38 @@
 			break;
 		}
 		// --------------------------------------------------------------------
-		//	Result changed
+		//	Score changed
 		// --------------------------------------------------------------------
-		case 'result_changed':
+		case 'score_changed':
 		{
+			$received_tournament_key = $json_data->tournament_key;
+			$received_table_number = intval($json_data->table_number);
+			$received_player_1_id = $json_data->player1->id;
+			$received_player_2_id = $json_data->player2->id;
+			$received_player_1_score = $json_data->player1->score;
+			$received_player_2_score = $json_data->player2->score;
+
+			// get required data from the HOSTING_TOURNAMENT
+			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
+			$query->bindParam(':rtk', $received_tournament_key);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			$billiard_club_id = $row['billiard_club_id'];
+			$tournament_type = $row['tournament_type'];
+			$date = $row['date'];
+
+			// update player score
+			$query = $db->prepare("UPDATE `match` SET score_1 = :s1, score_2 = :s2 WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
+			$query->bindParam(':pi1', $received_player_2_id);
+			$query->bindParam(':pi2', $received_player_2_id);
+			$query->bindValue(':s1', $received_player_1_score);
+			$query->bindValue(':s2', $received_player_2_score);
+			$query->bindParam(':ti', $received_table_number);
+			$query->bindParam(':td', $date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
+
 			break;
 		}
 		// --------------------------------------------------------------------
