@@ -199,6 +199,7 @@
 				$response->player1->name = $row['name'];
 				$response->player1->last_name = $row['last_name'];
 				$response->player1->image_link = $row['img_link'];
+				$response->player1->score = 0;
 
 				// get the second player
 				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
@@ -209,6 +210,7 @@
 				$response->player2->name = $row['name'];
 				$response->player2->last_name = $row['last_name'];
 				$response->player2->image_link = $row['img_link'];
+				$response->player2->score = 0;
 
 				echo json_encode($response);
 

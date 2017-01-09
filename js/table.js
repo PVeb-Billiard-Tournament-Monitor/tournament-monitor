@@ -93,7 +93,30 @@ var table = {
                         success: function(response) {
                             if (response.message === 'yes') {
                                 clearInterval(int_id);
-                                ref.table.changeState(table.states.match);
+
+                            var match_data =
+                            {
+                                message: "score_changed",
+                                tournament_key: ref.table.t_key,
+                                table_number: ref.table.t_number,
+                                player1: {
+                                    id: response.player1.id,
+                                    name: response.player1.name,
+                                    last_name: response.player1.last_name,
+                                    image_link: response.player1.image_link,
+                                    score: response.player1.score
+                                },
+                                player2: {
+                                    id: response.player2.id,
+                                    name: response.player2.name,
+                                    last_name: response.player2.last_name,
+                                    image_link: response.player2.image_link,
+                                    score: response.player2.score
+                                }
+                            }
+
+                            ref.table.matchData = match_data;
+                            ref.table.changeState(table.states.match);
                             }
                         },
                         error: function(response) {
@@ -149,12 +172,41 @@ var table = {
             init: function(table) {
                 this.table = table;
             },
+            update_score: function(e) {
+                var player = undefined;
+                if ($(e.target).hasClass("player1")) {
+                    player = "player1";
+                } else {
+                    player = "player2";
+                }
+
+                var cnt = $(e.target).html() == "+" ? 1 : -1;
+                this.table.matchData[player].score += cnt;
+                $("h1." + player).html(this.table.matchData[player].score);
+
+            },
+            finish_match: function(e) {
+                this.table.matchData.message = "match_finished";
+            },
             enter: function() {
+                ref = this;
                 $.ajax({
                     url: "/tournament-monitor/html/scoreboard.html",
                     dataType: "html",
                     success: function(response) {
                         $("div.container").html(response);
+
+                        $("span.player1").html(ref.table.matchData.player1.name + " " + ref.table.matchData.player1.last_name);
+                        $("h1.player1").html(ref.table.matchData.player1.score);
+                        $("img.player1").attr('src', ref.table.matchData.player1.image_link);
+
+                        $("span.player2").html(ref.table.matchData.player2.name + " " + ref.table.matchData.player2.last_name);
+                        $("h1.player2").html(ref.table.matchData.player2.score);
+                        $("img.player2").attr('src', ref.table.matchData.player2.image_link);
+
+                        $("button").click(function(e) {
+                            ref.update(e);
+                        });
                     },
                     error: function(response) {
                         $("div.container").html(response.responseText);
@@ -164,8 +216,30 @@ var table = {
             exit: function() {
                 $("div.container").html('');
             },
-            update: function() {
-                // TODO: implement the requests and ui for match score update
+            update: function(e) {
+                if (e === undefined)
+                    return;
+                var element = $(e.target);
+                if (element.hasClass("btn-primary")) {
+                    this.update_score(e);
+                } else {
+                    this.finish_match(e);
+                }
+
+                ref = this;
+                $.ajax({
+                    url: "/tournament-monitor/public/backend_script.php",
+                    method: "POST",
+                    data: {
+                        "table_data": JSON.stringify(ref.table.matchData)
+                    },
+                    success: function(response) {
+                        console.log("success!");
+                    },
+                    error: function(response) {
+                        $("#error_box").addClass("alert alert-danger").html(response.responseText);
+                    }
+                });
             }
         },
     },
