@@ -236,12 +236,15 @@
 		// --------------------------------------------------------------------
 		case 'score_changed':
 		{
+            require_once '../db/connecting.php';
+
 			$received_tournament_key = $json_data->tournament_key;
 			$received_table_number = intval($json_data->table_number);
 			$received_player_1_id = $json_data->player1->id;
 			$received_player_2_id = $json_data->player2->id;
 			$received_player_1_score = $json_data->player1->score;
 			$received_player_2_score = $json_data->player2->score;
+
 
 			// Get the required data from the HOSTING_TOURNAMENT table.
 			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
@@ -253,8 +256,8 @@
 			$date = $row['date'];
 
 			// Update player score.
-			$query = $db->prepare("UPDATE `match` SET score_1 = :s1, score_2 = :s2 WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
-			$query->bindParam(':pi1', $received_player_2_id);
+			$query = $db->prepare("UPDATE `match` SET score_1 = :s1, score_2 = :s2 WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND table_id = :ti");
+			$query->bindParam(':pi1', $received_player_1_id);
 			$query->bindParam(':pi2', $received_player_2_id);
 			$query->bindValue(':s1', $received_player_1_score);
 			$query->bindValue(':s2', $received_player_2_score);

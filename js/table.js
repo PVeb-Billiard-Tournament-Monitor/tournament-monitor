@@ -227,14 +227,12 @@ var table = {
                 }
 
                 ref = this;
+                // TODO: change the h1 style in scoreboard.css because it affects err msg
                 $.ajax({
-                    url: "/tournament-monitor/public/backend_script.php",
+                    url: "/tournament-monitor/public/cagi.php",
                     method: "POST",
                     data: {
                         "table_data": JSON.stringify(ref.table.matchData)
-                    },
-                    success: function(response) {
-                        console.log("success!");
                     },
                     error: function(response) {
                         $("#error_box").addClass("alert alert-danger").html(response.responseText);
