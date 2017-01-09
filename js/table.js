@@ -195,6 +195,7 @@ var table = {
                     dataType: "html",
                     success: function(response) {
                         $("div.container").html(response);
+                        $("div.container").after("<div id='error_box'></div>");
 
                         $("span.player1").html(ref.table.matchData.player1.name + " " + ref.table.matchData.player1.last_name);
                         $("h1.player1").html(ref.table.matchData.player1.score);
@@ -227,9 +228,8 @@ var table = {
                 }
 
                 ref = this;
-                // TODO: change the h1 style in scoreboard.css because it affects err msg
                 $.ajax({
-                    url: "/tournament-monitor/public/cagi.php",
+                    url: "/tournament-monitor/public/backend_script.php",
                     method: "POST",
                     data: {
                         "table_data": JSON.stringify(ref.table.matchData)

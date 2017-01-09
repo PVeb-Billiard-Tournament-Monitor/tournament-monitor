@@ -14,8 +14,13 @@ table td, th {
     border-bottom: 2px solid black;
 }
 
-h1 {
+.score {
     font-size: 15em;
+}
+#error_box {
+    width: 80%;
+    height: auto;
+    margin: auto;
 }
 
 .player1-colors {
