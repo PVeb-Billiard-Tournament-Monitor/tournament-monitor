@@ -109,7 +109,7 @@
 
 			require_once '../db/connecting.php';
 
-			// get total number of tables
+			// Get the total number of tables.
 			$query = $db->prepare("SELECT bc.num_of_tables FROM billiard_club bc JOIN hosting_tournament ht ON bc.id = ht.billiard_club_id WHERE ht.tournament_key = :rtk AND ht.active = true");
 			$query->bindParam(':rtk', $received_tournament_key);
 			$query->execute();
@@ -120,7 +120,7 @@
 				$total_number_of_tables = $row['num_of_tables'];
 			}
 
-			// get total number of currently registered tables
+			// Get the total number of the currently registered tables.
 			$query = $db->prepare("SELECT COUNT(table_number) AS number_of_currently_registered_tables FROM currently_registered_tables WHERE tournament_key = :tk");
 			$query->bindParam(':tk', $received_tournament_key);
 			$query->execute();
@@ -147,7 +147,7 @@
 
 			require_once '../db/connecting.php';
 
-			// get required data from the HOSTING_TOURNAMENT
+			// Get the required data from the HOSTING_TOURNAMENT table.
 			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
 			$query->bindParam(':rtk', $received_tournament_key);
 			$query->execute();
@@ -156,8 +156,8 @@
 			$tournament_type = $row['tournament_type'];
 			$date = $row['date'];
 
-			// check is there a pair for a round
-			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC");
+			// Check is there a pair for the round.
+			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC LIMIT 2");
 			$query->bindParam(':td', $date);
 			$query->bindParam(':bci', $billiard_club_id);
 			$query->bindParam(':tt', $tournament_type);
@@ -168,7 +168,7 @@
 				array_push($players, $row['player_id']);
 			}
 
-			// there is a pair for a round
+			// There is a pair for the round.
 			if (count($players) > 1)
 			{
 				$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, table_id, tournament_date, billiard_club_id, tournament_type) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :ti, :td, :bci, :tt)");
@@ -184,13 +184,13 @@
 				$query->bindParam(':tt', $tournament_type);
 				$query->execute();
 
-				// player class
+				// Generate json response.
 				$response = new stdClass();
 				$response->message = "yes";
 				$response->player1 = new stdClass();
 				$response->player2 = new stdClass();
 
-				// get the first player
+				// Get the first player data.
 				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
 				$query->bindParam(':i', $players[0]);
 				$query->execute();
@@ -201,7 +201,7 @@
 				$response->player1->image_link = $row['img_link'];
 				$response->player1->score = 0;
 
-				// get the second player
+				// Get the second player data.
 				$query = $db->prepare("SELECT name, last_name, img_link FROM player WHERE id = :i");
 				$query->bindParam(':i', $players[1]);
 				$query->execute();
@@ -221,14 +221,49 @@
 				$query->bindParam(':p2', $players[1]);
 				$query->execute();
 			}
+			else
+			{
+				$response = new stdClass();
+				$response->message = "no";
+
+				echo json_encode($response);
+			}
 
 			break;
 		}
 		// --------------------------------------------------------------------
-		//	Result changed
+		//	Score changed
 		// --------------------------------------------------------------------
-		case 'result_changed':
+		case 'score_changed':
 		{
+			$received_tournament_key = $json_data->tournament_key;
+			$received_table_number = intval($json_data->table_number);
+			$received_player_1_id = $json_data->player1->id;
+			$received_player_2_id = $json_data->player2->id;
+			$received_player_1_score = $json_data->player1->score;
+			$received_player_2_score = $json_data->player2->score;
+
+			// Get the required data from the HOSTING_TOURNAMENT table.
+			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
+			$query->bindParam(':rtk', $received_tournament_key);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			$billiard_club_id = $row['billiard_club_id'];
+			$tournament_type = $row['tournament_type'];
+			$date = $row['date'];
+
+			// Update player score.
+			$query = $db->prepare("UPDATE `match` SET score_1 = :s1, score_2 = :s2 WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
+			$query->bindParam(':pi1', $received_player_2_id);
+			$query->bindParam(':pi2', $received_player_2_id);
+			$query->bindValue(':s1', $received_player_1_score);
+			$query->bindValue(':s2', $received_player_2_score);
+			$query->bindParam(':ti', $received_table_number);
+			$query->bindParam(':td', $date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
+
 			break;
 		}
 		// --------------------------------------------------------------------
@@ -236,13 +271,65 @@
 		// --------------------------------------------------------------------
 		case 'match_finished':
 		{
-			// Delete a looser from the PLAYING_TOURNAMENT table and update next_round to the next_round+1 for a winner
+			$received_tournament_key = $json_data->tournament_key;
+			$received_table_number = intval($json_data->table_number);
+			$received_player_1_id = $json_data->player1->id;
+			$received_player_2_id = $json_data->player2->id;
+			$received_player_1_score = $json_data->player1->score;
+			$received_player_2_score = $json_data->player2->score;
+
+			if (received_player_1_score > received_player_2_score)
+			{
+				$winner = received_player_1_id;
+				$looser = received_player_2_id;
+			}
+			else
+			{
+				$winner = received_player_2_id;
+				$looser = received_player_1_id;
+			}
+
+			// Get the required data from the HOSTING_TOURNAMENT table.
+			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
+			$query->bindParam(':rtk', $received_tournament_key);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			$billiard_club_id = $row['billiard_club_id'];
+			$tournament_type = $row['tournament_type'];
+			$date = $row['date'];
+
+			// Delete a looser.
+			$query = $db->prepare("DELETE FROM playing_tournament WHERE player_id = :pi AND tournament_date = :td AND tournament_type = :tt AND billiard_club_id = :bci");
+			$query->bindParam(':pi', $looser);
+			$query->bindParam(':td', $tournament_date);
+			$query->bindParam(':tt', $tournament_type);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->execute();
+
+			// Increase next_round and set active to false for a winner.
+			$query = $db->prepare("UPDATE playing_tournament SET next_round = next_round + 1, active = false WHERE player_id = :pi AND tournament_date = :td AND tournament_type = :tt AND billiard_club_id = :bci");
+			$query->bindParam(':pi', $winner);
+			$query->bindParam(':td', $tournament_date);
+			$query->bindParam(':tt', $tournament_type);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->execute();
+
+			// Update record in the MATCH table.
+			$query = $db->prepare("UPDATE `match` SET active = false WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
+			$query->bindParam(':pi1', $received_player_2_id);
+			$query->bindParam(':pi2', $received_player_2_id);
+			$query->bindParam(':ti', $received_table_number);
+			$query->bindParam(':td', $date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
 
 			break;
 		}
 		default:
 		{
 			echo '[ERROR] # Bad request';
+
 			break;
 		}
 	}
