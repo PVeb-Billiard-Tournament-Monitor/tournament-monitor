@@ -234,6 +234,13 @@ var table = {
                     data: {
                         "table_data": JSON.stringify(ref.table.matchData)
                     },
+                    success: function(response) {
+                        if (response == "wait_for_next_match") {
+                            ref.table.changeState(table.states.waitingMatch);
+                        } else if (response == "tournament_finished") {
+                            ref.table.changeState(table.states.notRegistered);
+                        }
+                    },
                     error: function(response) {
                         $("#error_box").addClass("alert alert-danger").html(response.responseText);
                     }

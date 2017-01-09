@@ -274,6 +274,8 @@
 		// --------------------------------------------------------------------
 		case 'match_finished':
 		{
+            require_once "../db/connecting.php";
+
 			$received_tournament_key = $json_data->tournament_key;
 			$received_table_number = intval($json_data->table_number);
 			$received_player_1_id = $json_data->player1->id;
@@ -281,15 +283,15 @@
 			$received_player_1_score = $json_data->player1->score;
 			$received_player_2_score = $json_data->player2->score;
 
-			if (received_player_1_score > received_player_2_score)
+			if ($received_player_1_score > $received_player_2_score)
 			{
-				$winner = received_player_1_id;
-				$looser = received_player_2_id;
+				$winner = $received_player_1_id;
+				$looser = $received_player_2_id;
 			}
 			else
 			{
-				$winner = received_player_2_id;
-				$looser = received_player_1_id;
+				$winner = $received_player_2_id;
+				$looser = $received_player_1_id;
 			}
 
 			// Get the required data from the HOSTING_TOURNAMENT table.
@@ -318,7 +320,7 @@
 			$query->execute();
 
 			// Update record in the MATCH table.
-			$query = $db->prepare("UPDATE `match` SET active = false WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
+			$query = $db->prepare("UPDATE `match` SET active = false WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND table_id = :ti");
 			$query->bindParam(':pi1', $received_player_2_id);
 			$query->bindParam(':pi2', $received_player_2_id);
 			$query->bindParam(':ti', $received_table_number);
@@ -327,6 +329,7 @@
 			$query->bindParam(':tt', $tournament_type);
 			$query->execute();
 
+            echo "wait_for_next_match";
 			break;
 		}
 		default:
