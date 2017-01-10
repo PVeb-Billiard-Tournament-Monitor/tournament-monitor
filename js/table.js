@@ -38,7 +38,7 @@ var table = {
                     "message":"register_me",
                     "tournament_key": t_key,
                     "table_number": t_number
-                }
+                };
 
                 var json_data = JSON.stringify(string_data);
 
@@ -67,10 +67,10 @@ var table = {
                 this.table = table;
             },
             enter: function() {
-                $("div.container").html('\
-                <h2 class="text-muted" style="text-align: center;">\
-                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>\
-                <br>Waiting for match!</h2>');
+                $("div.container").html(
+                '<h2 class="text-muted" style="text-align: center;">' +
+                '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate">' +
+                '</span><br>Waiting for match!</h2>');
             },
             exit: function() {
                 $("div.container").html('');
@@ -82,7 +82,8 @@ var table = {
                     "message":"is_match_ready",
                     "table_number": ref.table.t_number,
                     "tournament_key": ref.table.t_key
-                }
+                };
+
                 var json_data = JSON.stringify(string_data);
                 var int_id = setInterval(function() {
                     $.ajax({
@@ -113,7 +114,7 @@ var table = {
                                     image_link: response.player2.image_link,
                                     score: response.player2.score
                                 }
-                            }
+                            };
 
                             ref.table.matchData = match_data;
                             ref.table.changeState(table.states.match);
@@ -132,10 +133,10 @@ var table = {
                 this.table = table;
             },
             enter: function() {
-                $("div.container").html('\
-                <h2 class="text-muted" style="text-align: center;">\
-                <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>\
-                <br>Waiting for tournament!</h2>');
+                $("div.container").html(
+                '<h2 class="text-muted" style="text-align: center;">' +
+                '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>' +
+                '<br>Waiting for tournament!</h2>');
             },
             exit: function() {
                 $("div.container").html('');
@@ -147,7 +148,7 @@ var table = {
                     "message":"is_tournament_ready",
                     "table_number": ref.table.t_number,
                     "tournament_key": ref.table.t_key
-                }
+                };
                 var json_data = JSON.stringify(string_data);
                 var int_id = setInterval(function() {
                     $.ajax({
@@ -173,7 +174,6 @@ var table = {
                 this.table = table;
             },
             update_score: function(e) {
-                var player = undefined;
                 if ($(e.target).hasClass("player1")) {
                     player = "player1";
                 } else {
@@ -268,4 +268,4 @@ var table = {
     update: function() {
         this.currState.update();
     }
-}
+};
