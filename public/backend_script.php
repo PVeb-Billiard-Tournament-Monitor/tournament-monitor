@@ -21,14 +21,6 @@
 		$query->execute();
 		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (4, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
 		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (5, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (6, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (7, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (8, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
 
 		header("Location: /tournament-monitor/public/table.php");
 		return;
@@ -160,6 +152,29 @@
 			$tournament_type = $row['tournament_type'];
 			$tournament_date = $row['date'];
 
+			// Check lock.
+			$query = $db->prepare("SELECT lock FROM hosting_tournament WHERE billiard_club_id = :bci AND tournament_type = :tt AND date = :td");
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->bindParam(':td', $tournament_date);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			if ($row['lock'] == true)
+			{
+				$response = new stdClass();
+				$response->message = "no";
+
+				echo json_encode($response);
+				return;
+			}
+
+			// Lock this action.
+			$query = $db->prepare("UPDATE hosting_tournament SET lock = true WHERE billiard_club_id = :bci AND tournament_type = :tt AND date = :td");
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->bindParam(':td', $tournament_date);
+			$query->execute();
+
 			// Get all records from the PLAYING_TOURNAMENT table.
 			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
 			$query->bindParam(':td', $tournament_date);
@@ -269,6 +284,13 @@
 					echo json_encode($response);
 				}
 			}
+
+			// Unlock this action.
+			$query = $db->prepare("UPDATE hosting_tournament SET lock = false WHERE billiard_club_id = :bci AND tournament_type = :tt AND date = :td");
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->bindParam(':td', $tournament_date);
+			$query->execute();
 
 			break;
 		}
