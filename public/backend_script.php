@@ -261,7 +261,10 @@
 				// Tournament finished.
 				if (count($all_players) == 1)
 				{
-					echo "tournament_finished";
+					$response = new stdClass();
+					$response->message = "tournament_finished";
+
+					echo json_encode($response);
 				}
 				// The player is waiting for an opponent.
 				else

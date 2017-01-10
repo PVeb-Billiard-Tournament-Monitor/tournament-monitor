@@ -14,6 +14,7 @@ var table = {
                     url: "/tournament-monitor/html/table_reg_form.html",
                     dataType: "html",
                     success: function(response) {
+                        console.log("bla");
                         $("div.container").html(response);
                     },
                     error: function(response) {
@@ -95,29 +96,38 @@ var table = {
                             if (response.message === 'yes') {
                                 clearInterval(int_id);
 
-                            var match_data =
-                            {
-                                message: "score_changed",
-                                tournament_key: ref.table.t_key,
-                                table_number: ref.table.t_number,
-                                player1: {
-                                    id: response.player1.id,
-                                    name: response.player1.name,
-                                    last_name: response.player1.last_name,
-                                    image_link: response.player1.image_link,
-                                    score: response.player1.score
-                                },
-                                player2: {
-                                    id: response.player2.id,
-                                    name: response.player2.name,
-                                    last_name: response.player2.last_name,
-                                    image_link: response.player2.image_link,
-                                    score: response.player2.score
-                                }
-                            };
+                                var match_data =
+                                {
+                                    message: "score_changed",
+                                    tournament_key: ref.table.t_key,
+                                    table_number: ref.table.t_number,
+                                    player1: {
+                                        id: response.player1.id,
+                                        name: response.player1.name,
+                                        last_name: response.player1.last_name,
+                                        image_link: response.player1.image_link,
+                                        score: response.player1.score
+                                    },
+                                    player2: {
+                                        id: response.player2.id,
+                                        name: response.player2.name,
+                                        last_name: response.player2.last_name,
+                                        image_link: response.player2.image_link,
+                                        score: response.player2.score
+                                    }
+                                };
 
-                            ref.table.matchData = match_data;
-                            ref.table.changeState(table.states.match);
+                                ref.table.matchData = match_data;
+                                ref.table.changeState(table.states.match);
+                            } else if (response.message == "tournament_finished") {
+                                clearInterval(int_id);
+                                $("div.container").html(
+                                    '<h2 class="text-muted" style="text-align: center;">' +
+                                    'Tournament finished! </h2>'
+                                );
+                                setTimeout(function() {
+                                    ref.table.changeState(table.states.notRegistered);
+                                }, 2000);
                             }
                         },
                         error: function(response) {
@@ -238,7 +248,13 @@ var table = {
                         if (response == "wait_for_next_match") {
                             ref.table.changeState(table.states.waitingMatch);
                         } else if (response == "tournament_finished") {
-                            ref.table.changeState(table.states.notRegistered);
+                            $("div.container").html(
+                                '<h2 class="text-muted" style="text-align: center;">' +
+                                'Tournament finished! </h2>'
+                            );
+                            setTimeout(function() {
+                                ref.table.changeState(table.states.notRegistered);
+                            }, 2000);
                         }
                     },
                     error: function(response) {
@@ -262,7 +278,8 @@ var table = {
             this.currState.exit();
             this.currState = state;
             this.currState.enter();
-            this.currState.update();
+            if (this.currState != this.states.notRegistered)
+                this.currState.update();
         }
     },
     update: function() {
