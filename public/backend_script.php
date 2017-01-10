@@ -143,6 +143,17 @@
 			// Connect to the database.
 			require_once '../db/connecting.php';
 
+			// Lock this action.
+			$lock_status = $db->query("SELECT GET_LOCK('my_lock', 0)")->fetchColumn();
+			if ($lock_status != "1")
+			{
+				$response = new stdClass();
+				$response->message = "no";
+
+				echo json_encode($response);
+				return;
+			}
+
 			// Get the required data from the HOSTING_TOURNAMENT table.
 			$query = $db->prepare("SELECT billiard_club_id, tournament_type, date FROM hosting_tournament WHERE tournament_key = :rtk AND active = true");
 			$query->bindParam(':rtk', $received_tournament_key);
@@ -151,17 +162,6 @@
 			$billiard_club_id = $row['billiard_club_id'];
 			$tournament_type = $row['tournament_type'];
 			$tournament_date = $row['date'];
-
-			// Lock this action.
-			$lock_status = $db->query("SELECT GET_LOCK('my_lock', 0)")->fetchColumn();
-			if ($lock_status == "0")
-			{
-				$response = new stdClass();
-				$response->message = "no";
-
-				echo json_encode($response);
-				return;
-			}
 
 			// Get all records from the PLAYING_TOURNAMENT table.
 			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
@@ -263,7 +263,7 @@
 				{
 					echo "tournament_finished";
 				}
-				// The player waiting for a opponent.
+				// The player is waiting for an opponent.
 				else
 				{
 					$response = new stdClass();
