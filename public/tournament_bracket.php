@@ -1,5 +1,7 @@
 <?php
-	$pageTitle = "Tournament result";
+	$pageTitle = "Tournament bracket";
+	$css_includes = ["/tournament-monitor/css/home_body.css", "../css/jquery.bracket.min.css"];
+	$js_includes = ["../js/jquery.bracket.min.js"];
 	include_once "../html/header.php";
 ?>
 

@@ -1,6 +1,7 @@
 <?php
 	$pageTitle = "Host a tournament";
-    $bodyCSS = ["/tournament-monitor/css/animate_glyph.css"];
+	$css_includes = ["/tournament-monitor/css/animate_glyph.css", "../css/bootstrap-duallistbox.css", ];
+	$js_includes = ["../js/jquery.bootstrap-duallistbox.js"];
 	include_once "../html/header.php";
 ?>
 

@@ -1,6 +1,7 @@
 <?php
 	$pageTitle = "Billiard Tournament Monitor";
-	$bodyCSS = ["/tournament-monitor/css/home_body.css"];
+	$css_includes = ["/tournament-monitor/css/home_body.css"];
+	$js_includes = [];
 	include_once "../html/header.php";
 ?>
 
@@ -44,15 +45,15 @@
 <div class="container text-center">
   <br>
   <div class="row">
-    <div class="col-sm-4">
+	<div class="col-sm-4">
 	  <a href="live_scores.php"><button type="button" class="btn btn-primary btn-lg" style="width:100%; height:150px;" >Live scores</button></a>
-    </div>
-    <div class="col-sm-4">
+	</div>
+	<div class="col-sm-4">
 	  <a href="host.php"><button type="button" class="btn btn-primary btn-lg" style="width:100%; height:150px;" >Host a tournament</button></a>
-    </div>
-    <div class="col-sm-4">
+	</div>
+	<div class="col-sm-4">
 	  <a href="table.php"><button type="button" class="btn btn-primary btn-lg" style="width:100%; height:150px;" >Table registration</button></a>
-    </div>
+	</div>
   </div>
 </div>
 
