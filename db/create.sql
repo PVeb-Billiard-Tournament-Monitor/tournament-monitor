@@ -224,22 +224,22 @@ COMMIT;
 -- -----------------------------------------------------
 -- Data for table `billiard_db`.`hosting_tournament`
 -- -----------------------------------------------------
-START TRANSACTION;
-USE `billiard_db`;
-INSERT INTO `billiard_db`.`hosting_tournament` (`date`, `billiard_club_id`, `name`, `entry_fee`, `prize`, `tournament_type`, `tournament_key`, `active`) VALUES ('NOW()', 1, 'bla bla', 0, 0, 'Drzavni', 'proba123', true);
-
-COMMIT;
+--START TRANSACTION;
+--USE `billiard_db`;
+--INSERT INTO `billiard_db`.`hosting_tournament` (`date`, `billiard_club_id`, `name`, `entry_fee`, `prize`, `tournament_type`, `tournament_key`, `active`) VALUES ('NOW()', 1, 'bla bla', 0, 0, 'Drzavni', 'proba123', true);
+--
+--COMMIT;
 
 
 -- -----------------------------------------------------
 -- Data for table `billiard_db`.`playing_tournament`
 -- -----------------------------------------------------
-START TRANSACTION;
-USE `billiard_db`;
-INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (1, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
-INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (2, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
-INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (3, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
-INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (4, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
-
-COMMIT;
+--START TRANSACTION;
+--USE `billiard_db`;
+--INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (1, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
+--INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (2, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
+--INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (3, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
+--INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (4, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
+--
+--COMMIT;
 

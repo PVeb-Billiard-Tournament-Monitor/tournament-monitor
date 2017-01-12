@@ -14,7 +14,6 @@ var table = {
                     url: "/tournament-monitor/html/table_reg_form.html",
                     dataType: "html",
                     success: function(response) {
-                        console.log("bla");
                         $("div.container").html(response);
                     },
                     error: function(response) {

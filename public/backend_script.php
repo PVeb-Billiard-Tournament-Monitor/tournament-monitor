@@ -12,15 +12,9 @@
 		$query->execute();
 		$query = $db->prepare("DELETE FROM playing_tournament");
 		$query->execute();
+		$query = $db->prepare("DELETE FROM hosting_tournament");
+		$query->execute();
 
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (1, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (2, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (3, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
-		$query = $db->prepare("INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (4, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT)");
-		$query->execute();
 
 		header("Location: /tournament-monitor/public/table.php");
 		return;
