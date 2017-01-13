@@ -1,11 +1,10 @@
 <?php
 
-	$username = "root";
-	$password = "abcdef";
+	$config = parse_ini_file("../private/config.ini");
 
 	try
 	{
-		$db = new PDO('mysql:host=localhost; dbname=billiard_db; charset=utf8;', $username, $password);
+		$db = new PDO('mysql:host=' . $config['servername'] . '; dbname=' . $config['dbname'] . '; charset=utf8;', $config['username'], $config['password']);
 	}
 	catch (Exception $error)
 	{
