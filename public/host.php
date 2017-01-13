@@ -8,7 +8,7 @@
 <br>
 <script src="/tournament-monitor/js/host.js"></script>
 
-<div class="container" style="margin: auto; width: 450px;">
+<div class="container" style="margin: auto; width: 350px;">
 </div>
 <br>
 
