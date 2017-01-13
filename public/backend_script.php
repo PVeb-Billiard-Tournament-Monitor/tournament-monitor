@@ -430,6 +430,16 @@
 			$query->bindParam(':bci', $billiard_club_id);
 			$query->execute();
 
+			// Update record in the MATCH table.
+ 			$query = $db->prepare("UPDATE `match` SET active = false WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND table_id = :ti");
+ 			$query->bindParam(':pi1', $received_player_1_id);
+ 			$query->bindParam(':pi2', $received_player_2_id);
+ 			$query->bindParam(':ti', $received_table_number);
+ 			$query->bindParam(':td', $tournament_date);
+ 			$query->bindParam(':bci', $billiard_club_id);
+ 			$query->bindParam(':tt', $tournament_type);
+ 			$query->execute();
+
 			echo "wait_for_next_match";
 
 			break;
