@@ -157,6 +157,49 @@
 			$tournament_type = $row['tournament_type'];
 			$tournament_date = $row['date'];
 
+			// ========== bracket data <3 ==========
+
+			// Check is the MATCH table for this tournament empty.
+			$query = $db->prepare("SELECT COUNT(*) as count FROM `match` WHERE tournament_date = :td AND tournament_type = :tt AND billiard_club_id = :bci");
+			$query->bindParam(':td', $tournament_date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
+			$row = $query->fetch(PDO::FETCH_ASSOC);
+			if (intval($row['count']) == 0)
+			{
+				// Get the player list.
+				$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC, player_id ASC");
+				$query->bindParam(':td', $tournament_date);
+				$query->bindParam(':bci', $billiard_club_id);
+				$query->bindParam(':tt', $tournament_type);
+				$query->execute();
+				$player_list = array();
+				while ($row = $query->fetch(PDO::FETCH_ASSOC))
+				{
+					array_push($player_list, $row['player_id']);
+				}
+
+				for ($i = 0; $i < (count($player_list) / 2); ++$i)
+				{
+					// Add phony pairs to the MATCH table.
+					// Insert phony pairs to the MATCH table.
+					$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, tournament_date, billiard_club_id, tournament_type, phony) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :td, :bci, :tt, true)");
+					$query->bindParam(':pi1', $player_list[2 * $i]);
+					$query->bindParam(':pi2', $player_list[2 * $i + 1]);
+					$query->bindValue(':r', 1);
+					$query->bindValue(':s1', 0);
+					$query->bindValue(':s2', 0);
+					$query->bindValue(':a', false);
+					$query->bindParam(':td', $tournament_date);
+					$query->bindParam(':bci', $billiard_club_id);
+					$query->bindParam(':tt', $tournament_type);
+					$query->execute();
+				}
+			}
+
+			// ========== end of bracket data <3 ==========
+
 			// Get all records from the PLAYING_TOURNAMENT table.
 			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
 			$query->bindParam(':td', $tournament_date);
@@ -170,7 +213,7 @@
 			}
 
 			// Get the next-round players.
-			$query = $db->prepare("SELECT player_id, next_round FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC LIMIT 2");
+			$query = $db->prepare("SELECT player_id, next_round FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC, player_id ASC LIMIT 2");
 			$query->bindParam(':td', $tournament_date);
 			$query->bindParam(':bci', $billiard_club_id);
 			$query->bindParam(':tt', $tournament_type);
@@ -190,18 +233,38 @@
 				// Two players can play only if they waiting for the same round.
 				if ($next_round_players[0]->next_round == $next_round_players[1]->next_round)
 				{
-					$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, table_id, tournament_date, billiard_club_id, tournament_type) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :ti, :td, :bci, :tt)");
-					$query->bindParam(':pi1', $next_round_players[0]->player_id);
-					$query->bindParam(':pi2', $next_round_players[1]->player_id);
-					$query->bindValue(':r', 1);
-					$query->bindValue(':s1', 0);
-					$query->bindValue(':s2', 0);
-					$query->bindValue(':a', true);
-					$query->bindParam(':ti', $received_table_number);
-					$query->bindParam(':td', $tournament_date);
-					$query->bindParam(':bci', $billiard_club_id);
-					$query->bindParam(':tt', $tournament_type);
-					$query->execute();
+
+					// ========== bracket data <3 ==========
+
+					if (intval($next_round_players[0]->next_round) == 1)
+					{
+						// Update phony column of the MATCH table. That record is the real pair now.
+						$query = $db->prepare("UPDATE `match` SET table_id = :ti, phony = false, active = true WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
+						$query->bindParam(':pi1', $next_round_players[0]->player_id);
+						$query->bindParam(':pi2', $next_round_players[1]->player_id);
+						$query->bindParam(':td', $tournament_date);
+						$query->bindParam(':bci', $billiard_club_id);
+						$query->bindParam(':tt', $tournament_type);
+						$query->bindParam(':ti', $received_table_number);
+						$query->execute();
+					}
+					// ========== end of bracket data <3 ==========
+					else
+					{
+						// Insert the real pair to the MATCH table.
+						$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, table_id, tournament_date, billiard_club_id, tournament_type, phony) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :ti, :td, :bci, :tt, false)");
+						$query->bindParam(':pi1', $next_round_players[0]->player_id);
+						$query->bindParam(':pi2', $next_round_players[1]->player_id);
+						$query->bindParam(':r', $next_round_players[0]->next_round);
+						$query->bindValue(':s1', 0);
+						$query->bindValue(':s2', 0);
+						$query->bindValue(':a', true);
+						$query->bindParam(':ti', $received_table_number);
+						$query->bindParam(':td', $tournament_date);
+						$query->bindParam(':bci', $billiard_club_id);
+						$query->bindParam(':tt', $tournament_type);
+						$query->execute();
+					}
 
 					// Generate the JSON response.
 					$response = new stdClass();
@@ -351,16 +414,6 @@
 			$tournament_type = $row['tournament_type'];
 			$tournament_date = $row['date'];
 
-			// Get the current round for the MATCH table.
-			$query = $db->prepare("SELECT next_round FROM playing_tournament WHERE player_id = :pi AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
-			$query->bindParam(':pi', $looser);
-			$query->bindParam(':td', $tournament_date);
-			$query->bindParam(':bci', $billiard_club_id);
-			$query->bindParam(':tt', $tournament_type);
-			$query->execute();
-			$row = $query->fetch(PDO::FETCH_ASSOC);
-			$round = $row['next_round'];
-
 			// Delete a looser from the PLAYING_TOURNAMENT table.
 			$query = $db->prepare("DELETE FROM playing_tournament WHERE player_id = :pi AND tournament_date = :td AND tournament_type = :tt AND billiard_club_id = :bci");
 			$query->bindParam(':pi', $looser);
@@ -377,21 +430,13 @@
 			$query->bindParam(':bci', $billiard_club_id);
 			$query->execute();
 
-			// Update record in the MATCH table.
-			$query = $db->prepare("UPDATE `match` SET active = false, round = :r WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND table_id = :ti");
-			$query->bindParam(':pi1', $received_player_1_id);
-			$query->bindParam(':pi2', $received_player_2_id);
-			$query->bindParam(':ti', $received_table_number);
-			$query->bindParam(':td', $tournament_date);
-			$query->bindParam(':bci', $billiard_club_id);
-			$query->bindParam(':tt', $tournament_type);
-			$query->bindParam(':r', $round);
-			$query->execute();
-
 			echo "wait_for_next_match";
 
 			break;
 		}
+		// --------------------------------------------------------------------
+		//	Bad request
+		// --------------------------------------------------------------------
 		default:
 		{
 			echo 'Bad request';
