@@ -1,22 +1,18 @@
 <?php
-
+    session_start();
 	//-----------------------------------------------------------------
 	// Only for the testing purpose.
 	//-----------------------------------------------------------------
 	if (isset($_GET['restart']))
 	{
+        session_destroy();
 		require_once '../db/connecting.php';
-		$query = $db->prepare("DELETE FROM currently_registered_tables");
-		$query->execute();
-		$query = $db->prepare("DELETE FROM `match`");
-		$query->execute();
-		$query = $db->prepare("DELETE FROM playing_tournament");
-		$query->execute();
-		$query = $db->prepare("DELETE FROM hosting_tournament");
-		$query->execute();
 
+        $cmd = "/opt/lampp/bin/mysql -u " . $config['username']. " -p" . $config['password'] . 
+            " < /opt/lampp/htdocs/tournament-monitor/db/create.sql";
+        shell_exec($cmd);
 
-		header("Location: /tournament-monitor/public/table.php");
+		header("Location: /tournament-monitor/public/home.php");
 		return;
 	}
 
@@ -66,7 +62,10 @@
 					return;
 				}
 
-				$query = $db->query("SELECT table_number FROM currently_registered_tables");
+				$query = $db->prepare("SELECT table_number FROM currently_registered_tables WHERE tournament_key = :rtk");
+				$query->bindParam(':rtk', $received_tournament_key);
+                $query->execute();
+
 				while ($row = $query->fetch(PDO::FETCH_ASSOC))
 				{
 					if ($received_table_number == $row['table_number'])

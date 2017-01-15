@@ -195,6 +195,7 @@ INSERT INTO `billiard_db`.`player` (`id`, `name`, `last_name`, `email`, `phone`,
 INSERT INTO `billiard_db`.`player` (`id`, `name`, `last_name`, `email`, `phone`, `img_link`) VALUES (DEFAULT, 'Marko', 'Markovic', 'marko.markovic@gmail.com', '+3815674325', '../images/players/placeholder.jpg');
 INSERT INTO `billiard_db`.`player` (`id`, `name`, `last_name`, `email`, `phone`, `img_link`) VALUES (DEFAULT, 'Nikola', 'Nikolic', 'nikola.nikolic@yahoo.com', '+3817685469', '../images/players/placeholder.jpg');
 INSERT INTO `billiard_db`.`player` (`id`, `name`, `last_name`, `email`, `phone`, `img_link`) VALUES (DEFAULT, 'Jovan', 'Jovanovic', 'jovan.jovanovic@ptt.yu', '+3811232346', '../images/players/placeholder.jpg');
+INSERT INTO `billiard_db`.`player` (`id`, `name`, `last_name`, `email`, `phone`, `img_link`) VALUES (DEFAULT, 'Ana', 'Anic', 'ana.anic@gmail.com', '+3515769029', '../images/players/placeholder.jpg');
 
 COMMIT;
 
@@ -205,6 +206,8 @@ COMMIT;
 START TRANSACTION;
 USE `billiard_db`;
 INSERT INTO `billiard_db`.`billiard_club` (`id`, `name`, `username`, `password`, `img_link`, `email`, `phone`, `city`, `address`, `zip_code`, `num_of_tables`) VALUES (DEFAULT, 'Cue Ball', 'cue_ball', '123456', NULL, 'cue_ball@gmail.com', '+3817584930', 'Belgrade', 'Majke Jevrosime 19', '11000', 2);
+
+INSERT INTO `billiard_db`.`billiard_club` (`id`, `name`, `username`, `password`, `img_link`, `email`, `phone`, `city`, `address`, `zip_code`, `num_of_tables`) VALUES (DEFAULT, 'BTT Joker', 'btt_joker', '123456', NULL, 'btt_joker@gmail.com', '+381652454527', 'Novi Sad', 'Trifkovicev Trg 4', '21000', 4);
 
 COMMIT;
 
@@ -219,27 +222,4 @@ INSERT INTO `billiard_db`.`tournament` (`type`) VALUES ('Drzavni');
 INSERT INTO `billiard_db`.`tournament` (`type`) VALUES ('Sponzorisan');
 
 COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `billiard_db`.`hosting_tournament`
--- -----------------------------------------------------
---START TRANSACTION;
---USE `billiard_db`;
---INSERT INTO `billiard_db`.`hosting_tournament` (`date`, `billiard_club_id`, `name`, `entry_fee`, `prize`, `tournament_type`, `tournament_key`, `active`) VALUES ('NOW()', 1, 'bla bla', 0, 0, 'Drzavni', 'proba123', true);
---
---COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `billiard_db`.`playing_tournament`
--- -----------------------------------------------------
---START TRANSACTION;
---USE `billiard_db`;
---INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (1, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
---INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (2, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
---INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (3, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
---INSERT INTO `billiard_db`.`playing_tournament` (`player_id`, `tournament_date`, `billiard_club_id`, `tournament_type`, `next_round`, `active`) VALUES (4, 'NOW()', 1, 'Drzavni', DEFAULT, DEFAULT);
---
---COMMIT;
 
