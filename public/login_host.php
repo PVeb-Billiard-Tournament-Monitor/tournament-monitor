@@ -58,14 +58,13 @@
         $query->execute();
 
 
+        $query = $db->prepare(
+            "INSERT INTO playing_tournament ".
+            "(player_id, tournament_date, billiard_club_id, tournament_type, ".
+            "next_round, active) VALUES ". 
+            "(:p_id, :date, :id, :type, DEFAULT, DEFAULT)"
+        );
         foreach ($json->players as $player_id) {
-            $query = $db->prepare(
-                "INSERT INTO playing_tournament ".
-                "(player_id, tournament_date, billiard_club_id, tournament_type, ".
-                "next_round, active) VALUES ". 
-                "(:p_id, :date, :id, :type, DEFAULT, DEFAULT)"
-            );
-
             $query->bindParam(":date", $date["n"]);
             $query->bindParam(":id", $_SESSION["host_id"]);
             $query->bindParam(":type", $json->tournament_type);
