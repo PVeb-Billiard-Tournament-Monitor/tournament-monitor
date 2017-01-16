@@ -75,53 +75,54 @@
         $db->commit();
         $_POST = [];
 
-        function next_pow($number) {
-            if($number < 2)
-                return 1;
-            if (($number & ($number - 1)) == 0)
-                return $number;
-            for($i = 0; $number > 1; $i++) {
-                $number = $number >> 1;
-            }
-            return 1 << ($i + 1);
-        }
+        //function next_pow($number) {
+        //    if($number < 2)
+        //        return 1;
+        //    if (($number & ($number - 1)) == 0)
+        //        return $number;
+        //    for($i = 0; $number > 1; $i++) {
+        //        $number = $number >> 1;
+        //    }
+        //    return 1 << ($i + 1);
+        //}
 
-        $max_players = next_pow(count($json->players));
+        //$max_players = next_pow(count($json->players));
+        //
+        //$n_of_byes = $max_players - count($json->players);
+
+        //$i = 0;
+        //while ($i < $n_of_byes) {
+        //    $query = $db->prepare(
+        //        "INSERT INTO `new_match` ".
+        //        "(tournament_date, billiard_club_id, tournament_type, ".
+        //        "id_player1, id_player2) VALUES ".
+        //        "(:date, :id, :type, :p_id, DEFAULT)"
+        //    );
+        //    $query->bindParam(":date", $date["n"]);
+        //    $query->bindParam(":id", $_SESSION["host_id"]);
+        //    $query->bindParam(":type", $json->tournament_type);
+        //    $query->bindParam(":p_id", $json->players[$i]);
+        //    $query->execute();
+        //    $i++;
+        //}
+
+        //while ($i < count($json->players)) {
+        //    $query = $db->prepare(
+        //        "INSERT INTO `new_match` ".
+        //        "(tournament_date, billiard_club_id, tournament_type, ".
+        //        "id_player1, id_player2) VALUES ".
+        //        "(:date, :id, :type, :p1_id, :p2_id)"
+        //    );
+        //    $query->bindParam(":date", $date["n"]);
+        //    $query->bindParam(":id", $_SESSION["host_id"]);
+        //    $query->bindParam(":type", $json->tournament_type);
+        //    $query->bindParam(":p1_id", $json->players[$i]);
+        //    $query->bindParam(":p2_id", $json->players[$i + 1]);
+        //    $query->execute();
+        //    $i = $i + 2;
+        //}
         
-        $n_of_byes = $max_players - count($json->players);
 
-        $i = 0;
-        while ($i < $n_of_byes) {
-            $query = $db->prepare(
-                "INSERT INTO `new_match` ".
-                "(tournament_date, billiard_club_id, tournament_type, ".
-                "id_player1, id_player2) VALUES ".
-                "(:date, :id, :type, :p_id, DEFAULT)"
-            );
-            $query->bindParam(":date", $date["n"]);
-            $query->bindParam(":id", $_SESSION["host_id"]);
-            $query->bindParam(":type", $json->tournament_type);
-            $query->bindParam(":p_id", $json->players[$i]);
-            $query->execute();
-            $i++;
-        }
-
-        while ($i < count($json->players)) {
-            $query = $db->prepare(
-                "INSERT INTO `new_match` ".
-                "(tournament_date, billiard_club_id, tournament_type, ".
-                "id_player1, id_player2) VALUES ".
-                "(:date, :id, :type, :p1_id, :p2_id)"
-            );
-            $query->bindParam(":date", $date["n"]);
-            $query->bindParam(":id", $_SESSION["host_id"]);
-            $query->bindParam(":type", $json->tournament_type);
-            $query->bindParam(":p1_id", $json->players[$i]);
-            $query->bindParam(":p2_id", $json->players[$i + 1]);
-            $query->execute();
-            $i = $i + 2;
-        }
-        
         echo "success";
     } else {
         echo "fail";

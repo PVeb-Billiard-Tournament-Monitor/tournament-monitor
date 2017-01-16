@@ -49,13 +49,13 @@ var host = {
                     },
                     async: true,
                     method: "POST",
-                    success: function(msg) {
-                        if (msg == "success") {
+                    success: function(response) {
+                        if (response === "success") {
                             ref.host.hostData = {};
                             ref.host.hostData.username = username;
                             ref.host.changeState(host.states.loggedIn);
                         } else {
-                            ref.error_handler(msg);
+                            ref.error_handler(response);
                         }
                     },
                     error: function(response) {
@@ -66,6 +66,7 @@ var host = {
         },
         loggedIn: {
             error_handler: function(msg) {
+                console.log("Im error logged in");
                 $("#error_box").addClass("alert alert-danger");
                 $("#error_box").html(msg);
             },
@@ -127,7 +128,7 @@ var host = {
                     data: { "host_data": JSON.stringify(data) },
                     method: "POST",
                     async: true,
-                    dataType: "html",
+                    dataType: "text",
                     success: function(response) {
                         if (response === "success") {
                             ref.host.t_key = data.tournament_key;
@@ -193,7 +194,7 @@ var host = {
                 $("div.container").html(
                 '<h2 class="text-muted" style="text-align: center;">' +
                 '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>' +
-                '<br>To be generated!</h2>');
+                '<br>Tournament in progress</h2>');
             },
             exit: function() {
                 $("div.container").html('');

@@ -10,7 +10,7 @@
 
 
             $query = $db->prepare(
-                "SELECT * FROM new_match ".
+                "SELECT * FROM `match` ".
                 "WHERE billiard_club_id = :id ".
                     "AND tournament_type = :type ".
                     "AND tournament_date = :date ".
@@ -32,25 +32,25 @@
                     "FROM player ".
                     "WHERE id = :id"
                 );
-                $id = is_null($row['id_player1']) ? 'Bye' : $row['id_player1'];
+                $id = is_null($row['player_id_1']) ? 'Bye' : $row['player_id_1'];
                 $get_names->bindParam(":id", $id);
                 $get_names->execute();
                 $p1 = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
-                $id = is_null($row['id_player2']) ? 'Bye' : $row['id_player2'];
+                $id = is_null($row['player_id_2']) ? 'Bye' : $row['player_id_2'];
                 $get_names->bindParam(":id", $id);
                 $get_names->execute();
                 $p2 = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
 
                 $brackets->teams[$i] = array($p1, $p2);
-                $results[0][0][$i] = array(intval($row['score1']),
-                                             intval($row['score2']));
-                $results_ind[0][$i] = array($row['id_player1'], $row['id_player2']);
+                $results[0][0][$i] = array(intval($row['score_1']),
+                                             intval($row['score_2']));
+                $results_ind[0][$i] = array($row['player_id_1'], $row['player_id_2']);
                 $i++;
                 $players += 2;
             }
 
             $query = $db->prepare(
-                "SELECT * FROM new_match ".
+                "SELECT * FROM `match` ".
                 "WHERE billiard_club_id = :id ".
                     "AND tournament_type = :type ".
                     "AND tournament_date = :date ".
@@ -71,11 +71,11 @@
                     $key1 = false; $key2 = false;
                     for ($i = 0; $i < count($results_ind[$round - 1]); $i++) {
                         if ($key1 === false) {
-                            if(array_search($row['id_player1'], $results_ind[$round - 1][$i]) !== false)
+                            if(array_search($row['player_id_1'], $results_ind[$round - 1][$i]) !== false)
                                 $key1 = intval($i < ($players / 4) ? 0 : 1);
                         }
                         if ($key2 === false) {
-                            if(array_search($row['id_player2'], $results_ind[$round - 1][$i]) !== false)
+                            if(array_search($row['player_id_2'], $results_ind[$round - 1][$i]) !== false)
                                 $key2 = intval($i < ($players / 4) ? 0 : 1);
                         }
                     }
@@ -88,13 +88,13 @@
                         $brackets->error_message="we have a problem";
                     }
 
-                    array_push($brackets->ids, "key1: $key1, key2 = $key2: inserting at results[0][$round][".min($key1, $key2)."] <- ".$row['score1']. ", ".$row['score2']);
+                    //array_push($brackets->ids, "key1: $key1, key2 = $key2: inserting at results[0][$round][".min($key1, $key2)."] <- ".$row['score_1']. ", ".$row['score_2']);
 
                     $index = ($key1 < $key2 ? intval($key1) : intval($key2));
                     $results[0][$round][$index] =
-                        array(intval($row['score1']), intval($row['score2']));
+                        array(intval($row['score_1']), intval($row['score_2']));
                     $results_ind[$round][$k] =
-                        array($row['id_player1'], $row['id_player2']);
+                        array($row['player_id_1'], $row['player_id_2']);
 
                     $k++;
                 }
