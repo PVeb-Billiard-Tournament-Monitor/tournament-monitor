@@ -39,7 +39,7 @@
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="home.php">Home</a></li>
 					<!-- TESTING -->
-					<li><a href="backend_script.php?restart">Delete currently logged tables in db [testing]</a></li>
+					<li><a href="backend_script.php?restart">Reload DB [testing]</a></li>
 					<!-- END TESTING -->
 				</ul>
 			</div>
