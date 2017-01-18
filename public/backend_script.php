@@ -1,27 +1,75 @@
 <?php
-    session_start();
+	session_start();
 	//-----------------------------------------------------------------
 	// Only for the testing purpose.
 	//-----------------------------------------------------------------
 	if (isset($_GET['restart']))
 	{
-        session_destroy();
+		session_destroy();
 		require_once '../db/connecting.php';
 
-        $cmd = "/opt/lampp/bin/mysql -u " . $config['username']. " -p" . $config['password'] . 
-            " < /opt/lampp/htdocs/tournament-monitor/db/create.sql";
-        shell_exec($cmd);
+		$cmd = "/opt/lampp/bin/mysql -u " . $config['username']. " -p" . $config['password'] .
+			" < /opt/lampp/htdocs/tournament-monitor/db/create.sql";
+		shell_exec($cmd);
 
 		header("Location: /tournament-monitor/public/home.php");
 		return;
 	}
 
 
-    $json_data = json_decode($_POST['table_data']);
+	$json_data = json_decode($_POST['table_data']);
 	$table_message = $json_data->message;
 
 	switch ($table_message)
 	{
+		//-----------------------------------------------------------------
+		// Fill match table [init]
+		//-----------------------------------------------------------------
+		case 'fill_match_table':
+		{
+			// Get the forwarded data.
+			$received_billiard_club_id = $json_data->billiard_club_id;
+			$received_tournament_date = $json_data->tournament_date;
+			$received_tournament_type = $json_data->tournament_type;
+
+			// Connect to the database.
+			require_once '../db/connecting.php';
+
+			// Get the player list.
+			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC, player_id ASC");
+			$query->bindParam(':td', $received_tournament_date);
+			$query->bindParam(':bci', $received_billiard_club_id);
+			$query->bindParam(':tt', $received_tournament_type);
+			$query->execute();
+			$player_list = array();
+			while ($row = $query->fetch(PDO::FETCH_ASSOC))
+			{
+				array_push($player_list, $row['player_id']);
+			}
+
+			for ($i = 0; $i < (count($player_list) / 2); ++$i)
+			{
+				// Add phony pairs to the MATCH table.
+				// Insert phony pairs to the MATCH table.
+				$query = $db->prepare("INSERT INTO `match` (player_id_1, player_id_2, round, score_1, score_2, active, tournament_date, billiard_club_id, tournament_type, phony) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :td, :bci, :tt, true)");
+				$query->bindParam(':pi1', $player_list[2 * $i]);
+				$query->bindParam(':pi2', $player_list[2 * $i + 1]);
+				$query->bindValue(':r', 1);
+				$query->bindValue(':s1', 0);
+				$query->bindValue(':s2', 0);
+				$query->bindValue(':a', false);
+				$query->bindParam(':td', $received_tournament_date);
+				$query->bindParam(':bci', $received_billiard_club_id);
+				$query->bindParam(':tt', $received_tournament_type);
+				$query->execute();
+			}
+
+			$response = new stdClass();
+			$response->message = 'success';
+			echo json_encode($response);
+
+			break;
+		}
 		//-----------------------------------------------------------------
 		// Table registration
 		//-----------------------------------------------------------------
@@ -64,7 +112,7 @@
 
 				$query = $db->prepare("SELECT table_number FROM currently_registered_tables WHERE tournament_key = :rtk");
 				$query->bindParam(':rtk', $received_tournament_key);
-                $query->execute();
+				$query->execute();
 
 				while ($row = $query->fetch(PDO::FETCH_ASSOC))
 				{
@@ -155,49 +203,6 @@
 			$billiard_club_id = $row['billiard_club_id'];
 			$tournament_type = $row['tournament_type'];
 			$tournament_date = $row['date'];
-
-			// ========== bracket data <3 ==========
-
-			// Check is the MATCH table for this tournament empty.
-			$query = $db->prepare("SELECT COUNT(*) as count FROM `match` WHERE tournament_date = :td AND tournament_type = :tt AND billiard_club_id = :bci");
-			$query->bindParam(':td', $tournament_date);
-			$query->bindParam(':bci', $billiard_club_id);
-			$query->bindParam(':tt', $tournament_type);
-			$query->execute();
-			$row = $query->fetch(PDO::FETCH_ASSOC);
-			if (intval($row['count']) == 0)
-			{
-				// Get the player list.
-				$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND active = false ORDER BY next_round ASC, player_id ASC");
-				$query->bindParam(':td', $tournament_date);
-				$query->bindParam(':bci', $billiard_club_id);
-				$query->bindParam(':tt', $tournament_type);
-				$query->execute();
-				$player_list = array();
-				while ($row = $query->fetch(PDO::FETCH_ASSOC))
-				{
-					array_push($player_list, $row['player_id']);
-				}
-
-				for ($i = 0; $i < (count($player_list) / 2); ++$i)
-				{
-					// Add phony pairs to the MATCH table.
-					// Insert phony pairs to the MATCH table.
-					$query = $db->prepare("INSERT INTO `match`(player_id_1, player_id_2, round, score_1, score_2, active, tournament_date, billiard_club_id, tournament_type, phony) VALUES(:pi1, :pi2, :r, :s1, :s2, :a, :td, :bci, :tt, true)");
-					$query->bindParam(':pi1', $player_list[2 * $i]);
-					$query->bindParam(':pi2', $player_list[2 * $i + 1]);
-					$query->bindValue(':r', 1);
-					$query->bindValue(':s1', 0);
-					$query->bindValue(':s2', 0);
-					$query->bindValue(':a', false);
-					$query->bindParam(':td', $tournament_date);
-					$query->bindParam(':bci', $billiard_club_id);
-					$query->bindParam(':tt', $tournament_type);
-					$query->execute();
-				}
-			}
-
-			// ========== end of bracket data <3 ==========
 
 			// Get all records from the PLAYING_TOURNAMENT table.
 			$query = $db->prepare("SELECT player_id FROM playing_tournament WHERE tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt");
@@ -430,14 +435,14 @@
 			$query->execute();
 
 			// Update record in the MATCH table.
- 			$query = $db->prepare("UPDATE `match` SET active = false WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND table_id = :ti");
- 			$query->bindParam(':pi1', $received_player_1_id);
- 			$query->bindParam(':pi2', $received_player_2_id);
- 			$query->bindParam(':ti', $received_table_number);
- 			$query->bindParam(':td', $tournament_date);
- 			$query->bindParam(':bci', $billiard_club_id);
- 			$query->bindParam(':tt', $tournament_type);
- 			$query->execute();
+			$query = $db->prepare("UPDATE `match` SET active = false WHERE player_id_1 = :pi1 AND player_id_2 = :pi2 AND tournament_date = :td AND billiard_club_id = :bci AND tournament_type = :tt AND table_id = :ti");
+			$query->bindParam(':pi1', $received_player_1_id);
+			$query->bindParam(':pi2', $received_player_2_id);
+			$query->bindParam(':ti', $received_table_number);
+			$query->bindParam(':td', $tournament_date);
+			$query->bindParam(':bci', $billiard_club_id);
+			$query->bindParam(':tt', $tournament_type);
+			$query->execute();
 
 			echo "wait_for_next_match";
 
@@ -448,9 +453,9 @@
 		// --------------------------------------------------------------------
 		default:
 		{
-            $response = new stdClass();
-            $response->message = 'Bad request';
-            echo json_encode($response);
+			$response = new stdClass();
+			$response->message = 'Bad request';
+			echo json_encode($response);
 
 			break;
 		}
