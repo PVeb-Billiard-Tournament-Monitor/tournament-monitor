@@ -13,24 +13,35 @@
 
     } else if (isset($_POST["username"]) && isset($_POST["password"])) {
 
-		$query = $db->prepare("SELECT username, password, id FROM billiard_club WHERE username = ? AND password = ?");
+        $query = $db->prepare(  "SELECT username, password, id, num_of_tables ".
+                                "FROM billiard_club ".
+                                "WHERE username = ? AND password = ?");
         $query->bindParam(1, $_POST["username"]);
         $query->bindParam(2, $_POST["password"]);
         $query->execute();
 
+        $response = new stdClass();
         if (!($row = $query->fetch(PDO::FETCH_ASSOC))) {
-            echo "wrong username of password!";
+            $response->message = "Wrong username of password!";
+            echo json_encode($response);
         } else {
             $_SESSION["host_id"] = intval($row["id"]);
             $_SESSION["username"] = $_POST["username"];
-            echo "success";
+
+            $response->message = "success";
+            $response->num_of_tables = $row["num_of_tables"];
+            $response->username = $row["username"];
+            echo json_encode($response);
         }
         $_POST = [];
 
 	} else if (isset($_SESSION["username"]) && isset($_SESSION["host_id"])) {
 
+        $response = new stdClass();
+
         if (!isset($_POST["host_data"])) {
-            echo "fail";
+            $response->message = "fail";
+            echo json_encode($response);
         }
 
         $json = json_decode($_POST["host_data"]);
@@ -123,9 +134,16 @@
         //}
         
 
-        echo "success";
+        $response->message = "success";
+        $response->id = $_SESSION["host_id"];
+        $response->type = $json->tournament_type;
+        $response->date = $date["n"];
+
+        echo json_encode($response);
     } else {
-        echo "fail";
+        $response = new stdClass();
+        $response->message = "fail";
+        echo json_encode($response);
     }
 
 

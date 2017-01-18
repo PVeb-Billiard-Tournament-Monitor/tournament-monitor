@@ -26,25 +26,37 @@
             $i = 0;
             $results=[];
             $players = 0;
+
             while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
                 $get_names = $db->prepare(
                     "SELECT CONCAT(name, ' ', last_name) as name ".
                     "FROM player ".
                     "WHERE id = :id"
                 );
-                $id = is_null($row['player_id_1']) ? 'Bye' : $row['player_id_1'];
-                $get_names->bindParam(":id", $id);
-                $get_names->execute();
-                $p1 = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
-                $id = is_null($row['player_id_2']) ? 'Bye' : $row['player_id_2'];
-                $get_names->bindParam(":id", $id);
-                $get_names->execute();
-                $p2 = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+                if (is_null($row['player_id_1'])) {
+                    $p1 = 'Bye';
+                } else {
+                    $get_names->bindParam(":id", $row['player_id_1']);
+                    $get_names->execute();
+                    $p1 = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+                }
+
+                if (is_null($row['player_id_2'])) {
+                    $p2 = 'Bye';
+                } else {
+                    $get_names->bindParam(":id", $row['player_id_2']);
+                    $get_names->execute();
+                    $p2 = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+                }
+
 
                 $brackets->teams[$i] = array($p1, $p2);
+                
                 $results[0][0][$i] = array(intval($row['score_1']),
                                              intval($row['score_2']));
+
                 $results_ind[0][$i] = array($row['player_id_1'], $row['player_id_2']);
+
                 $i++;
                 $players += 2;
             }
@@ -93,6 +105,7 @@
                     $index = ($key1 < $key2 ? intval($key1) : intval($key2));
                     $results[0][$round][$index] =
                         array(intval($row['score_1']), intval($row['score_2']));
+
                     $results_ind[$round][$k] =
                         array($row['player_id_1'], $row['player_id_2']);
 

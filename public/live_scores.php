@@ -23,26 +23,34 @@
 			require_once '../db/connecting.php';
 
 			// Get all active tournaments.
-			$query = $db->query("SELECT * FROM hosting_tournament WHERE active = true");
+            $query = $db->query("SELECT * ".
+                                "FROM hosting_tournament ".
+                                "WHERE active = true");
 			while ($row = $query->fetch(PDO::FETCH_ASSOC))
 			{
 				echo '<tr class="clickable_row" style="cursor: pointer;">';
 
 				// Set tournament name.
-				echo '<td name="name" value="' . $row['name'] . '">' . $row['name'] . '</td>';
+                echo '<td name="name" value="' . $row['name'] . '">' .
+                                                 $row['name'] . '</td>';
 
 				// Set billiard club name.
-				$query_temp = $db->prepare("SELECT name FROM billiard_club WHERE id = :id");
+                $query_temp = $db->prepare( "SELECT name ".
+                                            "FROM billiard_club ".
+                                            "WHERE id = :id");
 				$query_temp->bindParam(':id', $row['billiard_club_id']);
 				$query_temp->execute();
 				$row_temp = $query_temp->fetch(PDO::FETCH_ASSOC);
-				echo '<td name="id" value="' . $row['billiard_club_id'] . '">' . $row_temp['name'] . '</td>';
+                echo '<td name="id" value="' . $row['billiard_club_id'] . '">' .
+                                                    $row_temp['name'] . '</td>';
 
 				// Set tournament type name.
-				echo '<td name="type" value="' . $row['tournament_type'] . '">' . $row['tournament_type'] . '</td>';
+                echo '<td name="type" value="' . $row['tournament_type'] . '">'.
+                                              $row['tournament_type'] . '</td>';
 
 				// Set tournament date.
-				echo '<td name="date" value="' . $row['date'] . '">' . $row['date'] . '</td>';
+                echo '<td name="date" value="' . $row['date'] . '">' .
+                                                 $row['date'] . '</td>';
 
 				echo '</tr>';
 			}

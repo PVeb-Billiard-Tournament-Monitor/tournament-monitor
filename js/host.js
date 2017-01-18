@@ -4,7 +4,6 @@ var host = {
     states: {
         notLoggedIn: {
             error_handler: function(msg) {
-                console.log("im here");
                 $("#error_box").addClass("alert alert-danger");
                 $("#error_box").html(msg);
                 $("#refresh").removeClass("glyphicon glyphicon-refresh glyphicon-refresh-animate");
@@ -49,13 +48,15 @@ var host = {
                     },
                     async: true,
                     method: "POST",
+                    dataType: "json",
                     success: function(response) {
-                        if (response === "success") {
+                        if (response.message === "success") {
                             ref.host.hostData = {};
-                            ref.host.hostData.username = username;
+                            ref.host.hostData.username = response.username;
+                            ref.host.hostData.num_of_tables = response.num_of_tables;
                             ref.host.changeState(host.states.loggedIn);
                         } else {
-                            ref.error_handler(response);
+                            ref.error_handler(response.message);
                         }
                     },
                     error: function(response) {
@@ -66,7 +67,6 @@ var host = {
         },
         loggedIn: {
             error_handler: function(msg) {
-                console.log("Im error logged in");
                 $("#error_box").addClass("alert alert-danger");
                 $("#error_box").html(msg);
             },
@@ -97,8 +97,9 @@ var host = {
                 var ref = this;
 
                 var players = [];
-                $("#bootstrap-duallistbox-selected-list_players > option").each(function(n, e) {
-                    players.push($(e).val());
+                $("#bootstrap-duallistbox-selected-list_players > option").
+                    each(function(n, e) {
+                        players.push($(e).val());
                 });
 
                 var data = {};
@@ -116,25 +117,31 @@ var host = {
                     return;
                 }
 
-                if (players.length === 0) {
-                    ref.error_handler("There must be at least 1 player selected!");
+                var n_players = Math.pow(2, this.host.hostData.num_of_tables);
+                if (players.length !== n_players) {
+                    ref.error_handler("There must be " + n_players +
+                        " players selected!");
                     return;
                 }
                 data.players = players;
                 data.tournament_type = $("input[name='type'][type='radio']:checked").val();
+                
 
                 $.ajax({
                     url: "/tournament-monitor/public/login_host.php",
                     data: { "host_data": JSON.stringify(data) },
                     method: "POST",
-                    async: true,
-                    dataType: "text",
+                    async: false,
+                    dataType: "json",
                     success: function(response) {
-                        if (response === "success") {
-                            ref.host.t_key = data.tournament_key;
-                            ref.host.changeState(host.states.waitingTournament);
+                        if (response.message === "success") {
+                            ref.host.hostData.id = response.id;
+                            ref.host.hostData.tournament_key = 
+                                $("#tournament_key").val();
+                            ref.host.hostData.type = response.type;
+                            ref.host.hostData.date = response.date;
                         } else {
-                            ref.error_handler(response);
+                            ref.error_handler(response.message);
                         }
 
                     },
@@ -143,7 +150,30 @@ var host = {
                     }
                 });
 
-                //console.log(JSON.stringify(data));
+                var fill_table_data = {
+                    message: "fill_match_table",
+                    tournament_date: ref.host.hostData.date,
+                    billiard_club_id: ref.host.hostData.id,
+                    tournament_type: ref.host.hostData.type
+                };
+
+                $.ajax({
+                    url: "/tournament-monitor/public/backend_script.php",
+                    data: {
+                        "table_data": JSON.stringify(fill_table_data)
+                    },
+                    dataType: "json",
+                    method: "POST",
+                    success: function(response) {
+                        // TODO: change this to "success"
+                        if (response.message === "Bad request") {
+                            ref.host.changeState(host.states.waitingTournament);
+                        }
+                    },
+                    error: function(response) {
+                        ref.error_handler(response.responseText);
+                    }
+                });
             }
         },
         waitingTournament: {
@@ -153,7 +183,8 @@ var host = {
             enter: function() {
                 $("div.container").html(
                 '<h2 class="text-muted" style="text-align: center;">' +
-                '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>' +
+                '<span class="glyphicon glyphicon-refresh ' +
+                'glyphicon-refresh-animate"></span>' +
                 '<br>Waiting for tournament!</h2>');
             },
             exit: function() {
@@ -164,7 +195,7 @@ var host = {
                 var string_data =
                 {
                     "message":"is_tournament_ready",
-                    "tournament_key": ref.host.t_key,
+                    "tournament_key": ref.host.hostData.tournament_key,
                 };
                 var json_data = JSON.stringify(string_data);
                 var int_id = setInterval(function() {

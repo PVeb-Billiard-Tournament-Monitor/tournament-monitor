@@ -17,7 +17,7 @@
 	}
 
 
-	$json_data = json_decode($_POST['table_data']);
+    $json_data = json_decode($_POST['table_data']);
 	$table_message = $json_data->message;
 
 	switch ($table_message)
@@ -448,7 +448,9 @@
 		// --------------------------------------------------------------------
 		default:
 		{
-			echo 'Bad request';
+            $response = new stdClass();
+            $response->message = 'Bad request';
+            echo json_encode($response);
 
 			break;
 		}
