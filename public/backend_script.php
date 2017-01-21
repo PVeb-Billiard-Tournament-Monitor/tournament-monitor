@@ -66,121 +66,121 @@
 
 
 
-            $query = $db->prepare(
-                "SELECT * FROM `match` ".
-                "WHERE billiard_club_id = :id ".
-                    "AND tournament_type = :type ".
-                    "AND tournament_date = :date ".
-                    "AND round = :rnd"
-            );
-            $round = 0;
-            $tmp = $round + 1;
-            $query->bindParam(":rnd", $tmp);
+			$query = $db->prepare(
+				"SELECT * FROM `match` ".
+				"WHERE billiard_club_id = :id ".
+					"AND tournament_type = :type ".
+					"AND tournament_date = :date ".
+					"AND round = :rnd"
+			);
+			$round = 0;
+			$tmp = $round + 1;
+			$query->bindParam(":rnd", $tmp);
 			$query->bindParam(':date', $received_tournament_date);
 			$query->bindParam(':id', $received_billiard_club_id);
 			$query->bindParam(':type', $received_tournament_type);
-            $query->execute();
+			$query->execute();
 
-            $brackets = new stdClass();
-            $brackets->n_of_players = 0;
+			$brackets = new stdClass();
+			$brackets->n_of_players = 0;
 
-            /* Round 1 */
-            for ($i = 0; $match = $query->fetch(PDO::FETCH_ASSOC); $i++) {
-                $get_names = $db->prepare(
-                    "SELECT CONCAT(name, ' ', last_name) as name ".
-                    "FROM player ".
-                    "WHERE id = :id"
-                );
-                if (is_null($match['player_id_1'])) {
-                    $p1_name = 'Bye';
-                } else {
-                    $get_names->bindParam(":id", $match['player_id_1']);
-                    $get_names->execute();
-                    $p1_name = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
-                }
-                if (is_null($match['player_id_2'])) {
-                    $p2_name = 'Bye';
-                } else {
-                    $get_names->bindParam(":id", $match['player_id_2']);
-                    $get_names->execute();
-                    $p2_name = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
-                }
+			/* Round 1 */
+			for ($i = 0; $match = $query->fetch(PDO::FETCH_ASSOC); $i++) {
+				$get_names = $db->prepare(
+					"SELECT CONCAT(name, ' ', last_name) as name ".
+					"FROM player ".
+					"WHERE id = :id"
+				);
+				if (is_null($match['player_id_1'])) {
+					$p1_name = 'Bye';
+				} else {
+					$get_names->bindParam(":id", $match['player_id_1']);
+					$get_names->execute();
+					$p1_name = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+				}
+				if (is_null($match['player_id_2'])) {
+					$p2_name = 'Bye';
+				} else {
+					$get_names->bindParam(":id", $match['player_id_2']);
+					$get_names->execute();
+					$p2_name = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+				}
 
-                $brackets->teams[$i] = array($p1_name, $p2_name);
-                $brackets->results[0][0][$i] =
-                    array(intval($match['score_1']), intval($match['score_2']));
-                $brackets->id_map[0][0][$i] =
-                    array(
-                        intval($match['player_id_1']),
-                        intval($match['player_id_2'])
-                    );
-                $brackets->possible_pairs[0][$i] =
-                    array(
-                        intval($match['player_id_1']),
-                        intval($match['player_id_2'])
-                    );
-                $brackets->n_of_players += 2;
-            }
+				$brackets->teams[$i] = array($p1_name, $p2_name);
+				$brackets->results[0][0][$i] =
+					array(intval($match['score_1']), intval($match['score_2']));
+				$brackets->id_map[0][0][$i] =
+					array(
+						intval($match['player_id_1']),
+						intval($match['player_id_2'])
+					);
+				$brackets->possible_pairs[0][$i] =
+					array(
+						intval($match['player_id_1']),
+						intval($match['player_id_2'])
+					);
+				$brackets->n_of_players += 2;
+			}
 
-            $brackets->n_of_rounds = 0;
-            $brackets->n_of_rounds = log($brackets->n_of_players, 2);
+			$brackets->n_of_rounds = 0;
+			$brackets->n_of_rounds = log($brackets->n_of_players, 2);
 
-            for ($round = 1; $round < $brackets->n_of_rounds; $round++) {
+			for ($round = 1; $round < $brackets->n_of_rounds; $round++) {
 
-                $brackets->results[0][$round] = array();
-                $brackets->results[0][$round] = array_pad(
-                    $brackets->results[0][$round],
-                    count($brackets->results[0][$round - 1]) / 2,
-                    array(null, null)
-                );
-                $brackets->id_map[0][$round] = array();
-                $brackets->id_map[0][$round] = array_pad(
-                    $brackets->id_map[0][$round],
-                    count($brackets->id_map[0][$round - 1]) / 2,
-                    array(null, null)
-                );
+				$brackets->results[0][$round] = array();
+				$brackets->results[0][$round] = array_pad(
+					$brackets->results[0][$round],
+					count($brackets->results[0][$round - 1]) / 2,
+					array(null, null)
+				);
+				$brackets->id_map[0][$round] = array();
+				$brackets->id_map[0][$round] = array_pad(
+					$brackets->id_map[0][$round],
+					count($brackets->id_map[0][$round - 1]) / 2,
+					array(null, null)
+				);
 
 
-                $brackets->possible_pairs[$round] = array();
-                $brackets->possible_pairs[$round] = array_pad(
-                    $brackets->possible_pairs[$round],
-                    count($brackets->possible_pairs[$round - 1]) / 2,
-                    array()
-                );
+				$brackets->possible_pairs[$round] = array();
+				$brackets->possible_pairs[$round] = array_pad(
+					$brackets->possible_pairs[$round],
+					count($brackets->possible_pairs[$round - 1]) / 2,
+					array()
+				);
 
-                $tmp = log(count($brackets->possible_pairs[$round-1]), 2);
-                for ($i = 0; $i < count($brackets->possible_pairs[$round-1]); $i++) {
-                    if ($tmp == 1) {
-                        $index = 0;
-                    } else {
-                        $index = floor($i / $tmp);
-                    }
-                    if (!isset( $brackets->possible_pairs[$round][$index] ))
-                        $brackets->possible_pairs[$round][$index] = array();
-                    foreach ($brackets->possible_pairs[$round-1][$i] as $id) {
-                        array_push($brackets->possible_pairs[$round][$index], $id);
-                    }
-                }
+				$tmp = log(count($brackets->possible_pairs[$round-1]), 2);
+				for ($i = 0; $i < count($brackets->possible_pairs[$round-1]); $i++) {
+					if ($tmp == 1) {
+						$index = 0;
+					} else {
+						$index = floor($i / $tmp);
+					}
+					if (!isset( $brackets->possible_pairs[$round][$index] ))
+						$brackets->possible_pairs[$round][$index] = array();
+					foreach ($brackets->possible_pairs[$round-1][$i] as $id) {
+						array_push($brackets->possible_pairs[$round][$index], $id);
+					}
+				}
 
-            }
+			}
 
-            $brackets->message = "success";
+			$brackets->message = "success";
 			$schema = json_encode($brackets);
 
-            $query = $db->prepare(
-                "UPDATE hosting_tournament ".
-                "SET schema_JSON = :schema ".
-                "WHERE tournament_type = :type ".
-                "AND date = :date ".
-                "AND billiard_club_id = :id"
-            );
+			$query = $db->prepare(
+				"UPDATE hosting_tournament ".
+				"SET schema_JSON = :schema ".
+				"WHERE tournament_type = :type ".
+				"AND date = :date ".
+				"AND billiard_club_id = :id"
+			);
 			$query->bindParam(':date', $received_tournament_date);
 			$query->bindParam(':id', $received_billiard_club_id);
 			$query->bindParam(':type', $received_tournament_type);
 			$query->bindParam(':schema', $schema);
-            $query->execute();
+			$query->execute();
 
-            echo $schema;
+			echo $schema;
 
 			break;
 		}
@@ -367,12 +367,10 @@
 					$second_player_id = $players[$j]->player_id;
 					$second_player_round = $players[$j]->next_round;
 
-					// da li cekaju na istu rundu
 					if (intval($first_player_round) == intval($second_player_round))
 					{
-						// dobavi niz breketa za rundu na koju ceka prvi igrac
 						$bracket_array = $json_orderings->possible_pairs[$first_player_round - 1];
-						// prodji kroz svaki unutrasnji niz i proveri da li su igraci zajedno u nekom od njih
+
 						foreach ($bracket_array as $bracket)
 						{
 							if ((in_array($first_player_id, $bracket) == true) && (in_array($second_player_id, $bracket) == true))
@@ -460,7 +458,6 @@
 				}
 			}
 
-			// ili trenutno nema para, ili je turnir zavrsen
 			// Tournament finished.
 			if (count($all_players) == 1)
 			{
