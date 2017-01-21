@@ -167,8 +167,7 @@ var host = {
 					method: "POST",
 					success: function(response) {
 						if (response.message === "success") {
-                            console.log(JSON.stringify(response, null, '\t'));
-							//ref.host.changeState(host.states.waitingTournament);
+							ref.host.changeState(host.states.waitingTournament);
 						} else {
                             console.log(response);
                         }
@@ -235,7 +234,7 @@ var host = {
 				$("div.container").html('');
 			},
 			update: function() {
-
+                // TODO: send requests till the tournament is finished!
 			}
 		}
 	},
