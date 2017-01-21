@@ -23,7 +23,7 @@ $query->bindParam(":rnd", $tmp);
 $query->execute();
 
 $brackets = new stdClass();
-$n_of_players = 0;
+$brackets->n_of_players = 0;
 
 /* Round 1 */
 for ($i = 0; $match = $query->fetch(PDO::FETCH_ASSOC); $i++) {
@@ -55,14 +55,14 @@ for ($i = 0; $match = $query->fetch(PDO::FETCH_ASSOC); $i++) {
             intval($match['player_id_1']),
             intval($match['player_id_2'])
         );
-    $n_of_players += 2;
+    $brackets->n_of_players += 2;
 }
 
-$n_of_rounds = 0;
-$n_of_rounds = log($n_of_players, 2);
+$brackets->n_of_rounds = 0;
+$brackets->n_of_rounds = log($brackets->n_of_players, 2);
 
 // Round 2 to x
-for ($round = 1; $round < $n_of_rounds; $round++) {
+for ($round = 1; $round < $brackets->n_of_rounds; $round++) {
     $tmp = $round + 1;
     $query->bindParam(":id", $data->id);
     $query->bindParam(":type", $data->type);
@@ -105,7 +105,7 @@ for ($round = 1; $round < $n_of_rounds; $round++) {
 
         
         $index = min($key1, $key2);
-        $index = floor($index / log(count($brackets->id_map[0][$round-1], 2)));
+        $index = floor($index / log(count($brackets->id_map[0][$round-1]), 2));
         $brackets->results[0][$round][$index] = array($p1_score, $p2_score);
         $brackets->id_map[0][$round][$index] = array($p1_score, $p2_score);
     }

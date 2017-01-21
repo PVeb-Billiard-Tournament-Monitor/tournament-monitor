@@ -163,14 +163,19 @@ var host = {
 						"table_data": JSON.stringify(fill_table_data)
 					},
 					dataType: "json",
+					async: false,
 					method: "POST",
 					success: function(response) {
 						if (response.message === "success") {
-							ref.host.changeState(host.states.waitingTournament);
-						}
+                            console.log(JSON.stringify(response, null, '\t'));
+							//ref.host.changeState(host.states.waitingTournament);
+						} else {
+                            console.log(response);
+                        }
+
 					},
 					error: function(response) {
-						ref.error_handler(response.responseText);
+						ref.error_handler(response);
 					}
 				});
 			}

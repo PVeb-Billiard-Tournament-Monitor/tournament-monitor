@@ -64,9 +64,128 @@
 				$query->execute();
 			}
 
-			$response = new stdClass();
-			$response->message = 'success';
-			echo json_encode($response);
+            
+
+            $query = $db->prepare(
+                "SELECT * FROM `match` ".
+                "WHERE billiard_club_id = :id ".
+                    "AND tournament_type = :type ".
+                    "AND tournament_date = :date ".
+                    "AND round = :rnd"
+            );
+            $round = 0;
+            $tmp = $round + 1;
+            $query->bindParam(":rnd", $tmp);
+			$query->bindParam(':date', $received_tournament_date);
+			$query->bindParam(':id', $received_billiard_club_id);
+			$query->bindParam(':type', $received_tournament_type);
+            $query->execute();
+
+            $brackets = new stdClass();
+            $brackets->n_of_players = 0;
+
+            /* Round 1 */
+            for ($i = 0; $match = $query->fetch(PDO::FETCH_ASSOC); $i++) {
+                $get_names = $db->prepare(
+                    "SELECT CONCAT(name, ' ', last_name) as name ".
+                    "FROM player ".
+                    "WHERE id = :id"
+                );
+                if (is_null($match['player_id_1'])) {
+                    $p1_name = 'Bye';
+                } else {
+                    $get_names->bindParam(":id", $match['player_id_1']);
+                    $get_names->execute();
+                    $p1_name = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+                }
+                if (is_null($match['player_id_2'])) {
+                    $p2_name = 'Bye';
+                } else {
+                    $get_names->bindParam(":id", $match['player_id_2']);
+                    $get_names->execute();
+                    $p2_name = $get_names->fetch(PDO::FETCH_ASSOC)['name'];
+                }
+
+                $brackets->teams[$i] = array($p1_name, $p2_name);
+                $brackets->results[0][0][$i] = 
+                    array(intval($match['score_1']), intval($match['score_2']));
+                $brackets->id_map[0][0][$i] = 
+                    array(
+                        intval($match['player_id_1']),
+                        intval($match['player_id_2'])
+                    );
+                $brackets->possible_pairs[0][$i] = 
+                    array(
+                        intval($match['player_id_1']),
+                        intval($match['player_id_2'])
+                    );
+                $brackets->n_of_players += 2;
+            }
+
+            $brackets->n_of_rounds = 0;
+            $brackets->n_of_rounds = log($brackets->n_of_players, 2);
+
+            for ($round = 1; $round < $brackets->n_of_rounds; $round++) {
+
+                $brackets->results[0][$round] = array();
+                $brackets->results[0][$round] = array_pad(
+                    $brackets->results[0][$round],
+                    count($brackets->results[0][$round - 1]) / 2,
+                    array(null, null)
+                );
+                $brackets->id_map[0][$round] = array();
+                $brackets->id_map[0][$round] = array_pad(
+                    $brackets->id_map[0][$round],
+                    count($brackets->id_map[0][$round - 1]) / 2,
+                    array(null, null)
+                );
+
+
+                $brackets->possible_pairs[$round] = array();
+                $brackets->possible_pairs[$round] = array_pad(
+                    $brackets->possible_pairs[$round],
+                    count($brackets->possible_pairs[$round - 1]) / 2,
+                    array()
+                );
+
+                $tmp = log(count($brackets->possible_pairs[$round-1]), 2);
+                for ($i = 0; $i < count($brackets->possible_pairs[$round-1]); $i++) {
+                    if ($tmp == 1) {
+                        $index = 0;
+                    } else {
+                        $index = floor($i / $tmp);
+                    }
+                    if (!isset( $brackets->possible_pairs[$round][$index] ))
+                        $brackets->possible_pairs[$round][$index] = array();
+                    foreach ($brackets->possible_pairs[$round-1][$i] as $id) {
+                        array_push($brackets->possible_pairs[$round][$index], $id);
+                    }
+                }
+
+            }
+
+
+			//$response = new stdClass();
+			//$response->message = 'success';
+			//echo json_encode($response);
+
+            $brackets->message = "success";
+			$schema = json_encode($brackets);
+            
+            $query = $db->prepare(
+                "UPDATE hosting_tournament ".
+                "SET schema_JSON = :schema ".
+                "WHERE tournament_type = :type ".
+                "AND date = :date ".
+                "AND billiard_club_id = :id"
+            );
+			$query->bindParam(':date', $received_tournament_date);
+			$query->bindParam(':id', $received_billiard_club_id);
+			$query->bindParam(':type', $received_tournament_type);
+			$query->bindParam(':schema', $schema);
+            $query->execute();
+
+            echo $schema;
 
 			break;
 		}
