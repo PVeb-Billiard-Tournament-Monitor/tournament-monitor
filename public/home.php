@@ -25,6 +25,12 @@
 			<div class="carousel-caption">
 			</div>
 		</div>
+
+		<div class="item">
+			<img src="/tournament-monitor/images/home_slide/rack.jpg" alt="Image">
+			<div class="carousel-caption">
+			</div>
+		</div>
 	</div>
 
 	<!-- Left and right controls -->
