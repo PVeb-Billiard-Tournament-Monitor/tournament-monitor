@@ -23,6 +23,9 @@ $query->bindParam(":rnd", $tmp);
 $query->execute();
 
 $brackets = new stdClass();
+$brackets->date = $data->date;
+$brackets->type = $data->type;
+$brackets->id = $data->id;
 $brackets->n_of_players = 0;
 
 /* Round 1 */
@@ -48,9 +51,9 @@ for ($i = 0; $match = $query->fetch(PDO::FETCH_ASSOC); $i++) {
     }
 
     $brackets->teams[$i] = array($p1_name, $p2_name);
-    $brackets->results[0][0][$i] = 
+    $brackets->results[0][0][$i] =
         array(intval($match['score_1']), intval($match['score_2']));
-    $brackets->id_map[0][0][$i] = 
+    $brackets->id_map[0][0][$i] =
         array(
             intval($match['player_id_1']),
             intval($match['player_id_2'])
@@ -103,7 +106,6 @@ for ($round = 1; $round < $brackets->n_of_rounds; $round++) {
         }
 
 
-        
         $index = min($key1, $key2);
         $index = floor($index / log(count($brackets->id_map[0][$round-1]), 2));
         $brackets->results[0][$round][$index] = array($p1_score, $p2_score);
@@ -126,6 +128,21 @@ for ($round = 1; $round < $brackets->n_of_rounds; $round++) {
                 teamWidth: 200,
                 centerConnectors: true,
             });
+            window.setTimeout(function() {
+                $.ajax({
+                    url: "/tournament-monitor/public/tournament_bracket.php",
+                    method: "POST",
+                    data: {
+                        "bracket_data": JSON.stringify(tournamentData)
+                    },
+                    success: function(response) {
+                        $("div.container").html(response);
+                    },
+                    error: function(response) {
+                        $("div.container").html(response.responseText);
+                    }
+                });
+            }, 2000);
         });
     </script>
 </div>
