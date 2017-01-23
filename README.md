@@ -3,18 +3,17 @@
 Korisnik na raspolaganju ima tri opcije:
 
 * ***posmatranje turnira*** <br>
-    Korisniku se izlistavaju aktivni turniri u formatu: *ime_kluba -> naziv_turnira* <br>
-	Korisnik bira turnir koji želi da posmatra. <br>
-    Korisniku se prikazuje šema turnira koji je izabrao. <br>
+    Korisniku se izlistavaju aktivni turniri koje može da posmatra. Svaki turnir je opisan svojim nazivom, bilijarskim klubom u kom se turnir održava, tipom i datumom održavanja. <br>
+    Korisnik bira turnir koji želi da posmatra. <br>
+    Korisniku se prikazuje šema i trenutni rezultat turnira koji je izabrao. <br>
 
 * ***kreiranje turnira*** <br>
     Korisnik vrši odabir kluba (klub se mora nalaziti u bazi podataka, ukoliko je klub registrovan). <br>
     Korisnik unosi svoj *username* i *password* koji mu je dodeljen prilikom registracije kluba. <br>
-    Korisnik unosi naziv turnira i šifru turnira. <br>
+    Korisnik unosi proizvoljni naziv i šifru turnira. <br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dodeljena šifra se kasnije upotrebljava za registraciju stolova. <br>
+    Korisnik određuje tip turnira. <br>
     Korisnik vrši izbor igrača koji će se takmičiti. <br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ukoliko se neki igrač ne nalazi u bazi, korisnik unosi njegovo *ime, prezime i sliku (opciono)*. <br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Registrovani igrač ostaje u bazi i nakon završetka turnira. <br>
     Nakon odabira igrača, prelazi se u fazu registracije stolova. <br>
     Nakon registracije svih stolova, omogućuje se pokretanje turnira. <br>
     Korisniku se iscrtava šema turnira i stolovi na kojima igraju parovi. <br>
@@ -31,8 +30,9 @@ Korisnik na raspolaganju ima tri opcije:
 
 ## Bekend
 
-Baza podataka čuva podatke o trenutno registrovanim klubovima, igračima, aktivnim i odigranim turnirima (detalji implementacije će biti odlučeni u hodu). <br>
+Baza podataka čuva podatke o trenutno registrovanim klubovima, igračima, aktivnim i odigranim turnirima. <br>
 Bekend omogućuje generisanje i iscrtavanje šeme koju prikazuje korisnicima. <br>
+Bekend vrši kontrolisanje i praćenje toka turnira: registraciju stolova, provera zadovoljenosti uslova za početak turnira, odabir igrača za naredni meč, provera zadovoljenosti uslova za završetak turnira. <br>
 Bekend obaveštava korisnike koji meč se igra na kom stolu. <br>
 Bekend čuva redosled mečeva koji su na listi čekanja. <br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Kada se oslobodi neki sto, prvi meč sa liste čekanja se postavlja za taj sto. <br>
