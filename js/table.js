@@ -205,6 +205,7 @@ var table = {
                     success: function(response) {
                         $("div.container").html(response);
                         $("div.container").after("<div id='error_box'></div>");
+                        $("div.container").css("width", "60%");
 
                         $("span.player1").html(ref.table.matchData.player1.name + " " + ref.table.matchData.player1.last_name);
                         $("h1.player1").html(ref.table.matchData.player1.score);
