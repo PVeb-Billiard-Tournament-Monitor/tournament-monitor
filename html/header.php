@@ -4,10 +4,10 @@
 
 <head>
 	<title><?php echo $pageTitle; ?></title>
+    <link rel="shortcut icon" type="image/png" href="/tournament-monitor/images/icons/logo.ico"/>
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -32,7 +32,9 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="home.php">Logo</a>
+                <a class="navbar-brand" href="home.php">
+                    <img src="/tournament-monitor/images/icons/logo.ico" height="20px" width="20px" />
+                </a>
 			</div>
 
 			<div style="position: relative;" class="collapse navbar-collapse" id="myNavbar">

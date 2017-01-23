@@ -229,12 +229,13 @@ var host = {
 				'<h2 class="text-muted" style="text-align: center;">' +
 				'<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>' +
 				'<br>Tournament in progress</h2>');
+                setTimeout(this.update, 2000);
 			},
 			exit: function() {
 				$("div.container").html('');
 			},
 			update: function() {
-                // TODO: send requests till the tournament is finished!
+                window.location.assign("/tournament-monitor/public/home.php");
 			}
 		}
 	},
