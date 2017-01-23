@@ -7,7 +7,7 @@
 
 <br>
 <br>
-<div class="container" style="margin: auto; width: 80%;">
+<div class="container" style="margin: auto; width: 100%;">
 	<table id="tournament_table" class="table table-hover table-bordered">
 		<thead>
 			<tr>
